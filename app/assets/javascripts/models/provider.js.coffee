@@ -16,8 +16,10 @@ class Thorax.Models.Provider extends Thorax.Model
     json.children = json.children.toJSON() if json.children?
     json
   npi: ->
-    if @providerType() == '2.16.840.1.113883.4.6' then @providerExtension() 
-  
+    if @providerType() == '2.16.840.1.113883.4.6' then @providerExtension()
+  tin: ->
+    if @get("cda_identifiers")?[1]?.extension == '2.16.840.1.113883.4.2' then @get("cda_identifiers")?[1]?.extension
+
 class Thorax.Collections.Providers extends Thorax.Collection
   url: '/api/providers'
   model: Thorax.Models.Provider

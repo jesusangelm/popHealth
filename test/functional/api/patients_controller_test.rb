@@ -9,8 +9,8 @@ require 'test_helper'
       collection_fixtures 'measures', 'patient_cache', 'records', 'users', 'practices', 'providers'
       @user = User.where({email: 'admin@test.com'}).first
       
-      @practice1 = Practice.first
-      @practice2 = Practice.last
+      @practice1 = Practice.asc('_id').first
+      @practice2 = Practice.asc('_id').last
       
       @staff1 = User.where({email: 'noadmin@test.com'}).first   
       @staff2 = User.where({email: 'noadmin2@test.com'}).first
@@ -38,12 +38,12 @@ require 'test_helper'
       @provider2.parent = @pp2
       @provider2.save!
       
-      @record1 = Record.first
+      @record1 = Record.asc("_id").first
       @record1.practice = @practice1
       @record1.provider_performances = [ProviderPerformance.new(provider: @provider1)]
       @record1.save!
       
-      @record2 = Record.last
+      @record2 = Record.asc("_id").last
       @record2.practice = @practice2
       @record2.provider_performances = [ProviderPerformance.new(provider: @provider2)]
       @record2.save!     

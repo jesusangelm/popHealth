@@ -19,7 +19,7 @@ module Api
       @user.preferences["selected_measure_ids"] = ["40280381-4600-425F-0146-1F6F722B0F17"]    
       @user.save!
       
-      @practice = Practice.all.first
+      @practice = Practice.all.asc("_id").first
       identifier = CDAIdentifier.new(:root => "Organization", :extension => @practice.organization)
       practice_provider = Provider.where('cda_identifiers.root' => "Organization").first
       practice_provider.cda_identifiers << identifier
@@ -35,7 +35,7 @@ module Api
       @provider.parent = practice_provider
       @provider.save!
 
-      @team = Team.first
+      @team = Team.asc("_id").first
       @team.providers = [@provider.id]
       @team.user_id = @user.id
       @team.save!
@@ -47,7 +47,8 @@ module Api
 
     test "generate cat3" do
       sign_in @user
-      get :cat3, :provider_id=> Provider.first.id
+
+      get :cat3, :use_route => '/api/reports/qrda_cat3.xml', :provider_id=> Provider.asc("_id").first.id
       assert_response :success
 
       cdastring = @response.body

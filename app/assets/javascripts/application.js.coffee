@@ -1,18 +1,20 @@
 #= require jquery/jquery
 #= require jquery_ujs
+#= require jquery-ui
 #= require bootstrap-datepicker/core
 #= require jquery-idletimer/dist/idle-timer
-#= require jQuery-Knob/js/jquery.knob
+#= require jquery-knob/js/jquery.knob
 #= require jquery-placeholder/jquery.placeholder
 #= require numeral/numeral
 #= require momentjs/moment
 #= require bootstrap
 #= require underscore/underscore
 #= require backbone/backbone
-#= require handlebars/handlebars
+#= require handlebars
 #= require thorax/thorax
 #= require backbone_sync_rails
 #= require d3/d3
+#= require jquery-tagit/js/tag-it
 #
 #= require config
 #= require helpers
@@ -25,6 +27,7 @@
 #= require_self
 #= require dataTables/jquery.dataTables
 #= require teams
+#= require select2
 
 if Config.idleTimeout.isEnabled
   $(document).idleTimer Config.idleTimeout.timer

@@ -14,8 +14,8 @@ module HealthDataStandards
         cache_entries = self.where(query_hash)
         aggregate_count = AggregateCount.new(measure_id)
         cache_entries.each do |cache_entry|
-          aggregate_count.add_entry(cache_entry)
-        end
+            aggregate_count.add_entry(cache_entry)
+          end
         aggregate_count
       end
     end

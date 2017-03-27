@@ -54,7 +54,7 @@ PopHealth.viz.populationChart = ->
   width = 150
   height = 20
   maximumValue = 100
-  xScale = d3.scale.linear()
+  xScale = d3.scaleLinear()
   svg = new d3.selection()
   margin =
     top: 2

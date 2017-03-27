@@ -1,5 +1,4 @@
 <div class="sidebar" id="filters">
-  <h3>Filters</h3>
   {{#unless opml}}
   <span class="panel-title btn btn-checkbox btn-block aggregate-btn {{#if showAggregateResult}}active{{/if}}"> 
     <i class="fa fa-group"/> &nbsp; SHOW AGGREGATE RESULT 
@@ -64,10 +63,12 @@
           <i class="glyphicon glyphicon-download-alt"></i> Export</a>
         </div>
         <ul class="dropdown-menu pull-right">
-          <li><a href="/api/reports/qrda_cat3.xml{{#if effective_date}}?effective_date={{effective_date}}{{/if}}{{#if provider_id}}&provider_id={{provider_id}}{{/if}}" class="btn"> QRDA Cat 3 </a></li>
+          <li><a id="cat3link"  class="btn"> QRDA Cat 3 </a></li>
+          <li><a id="cat1link"  class="btn"> QRDA Cat 1 Zip </a></li>
           <li><a href="/api/reports/measures_spreadsheet/{{#if effective_date}}?effective_date={{effective_date}}{{/if}}{{#if provider_id}}&provider_id={{provider_id}}{{/if}}{{#if currentUser}}&username={{currentUser}}{{/if}}" class="btn"> Spreadsheet </a></li>
         </ul>
       </div> 
+      <div><scan id="filterorno"><scan></div>
     </div>
   </div>
   {{#collection selectedCategories item-context=selectedCategoryContext item-filter=categoryFilter}}

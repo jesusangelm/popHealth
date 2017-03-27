@@ -6,6 +6,15 @@ module LogsHelper
     url_params_hash
   end
 
+  def log_failed_authorization(exception)
+    user = get_calling_user
+    Log.create(:username => user.username,
+      :action => LogAction::AUTH, :event => "#{exception.subject.class} - #{exception.action}",
+      :description => exception.inspect + (params.nil? ? '' : " Parameters: #{params.except(:utf8, :authenticity_token).inspect}"),
+      :medical_record_number => (@patient.nil? ? nil : @patient.medical_record_number),
+      :affected_user => (@user.nil? ? nil : @user.username))
+  end
+
   def log_controller_call(action, event, is_sensitive = false)
     log_call action, event, "Controller - " + event, true, false, false, is_sensitive
   end
@@ -31,7 +40,7 @@ module LogsHelper
       (log_config["api"] and api) or
       (log_config["is_sensitive"] and is_sensitive)
 
-    user = (defined?(current_user) && current_user) ? current_user : @current_user
+    user = get_calling_user
     Log.create(:username => user.username,
       :action => action, :event => event,
       :description => details + (params.nil? ? '' : " Parameters: #{params.except(:action, :controller, :utf8, :authenticity_token).inspect}"),
@@ -45,5 +54,9 @@ module LogsHelper
     else
       item.errors.messages
     end
+  end
+
+  def get_calling_user
+    (defined?(current_user) && current_user) ? current_user : @current_user
   end
 end

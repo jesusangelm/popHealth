@@ -39,7 +39,7 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
 
     missing_patients
 
-  rescue
+  rescue => ex
     FileUtils.mkdir_p(failed_dir)
     FileUtils.cp(file,File.join(failed_dir,File.basename(file)))
     File.open(File.join(failed_dir,"#{file}.error")) do |f|

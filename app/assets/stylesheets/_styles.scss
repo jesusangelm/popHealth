@@ -6,7 +6,7 @@ $footnote-size: 0.8em;
 
 .dropdown, div.datepicker {
   position: relative;
-  z-index: 1000 !important;
+  z-index: 2000 !important;
 }
 .effective-date-header{
   font-size: 16px;
@@ -491,6 +491,21 @@ $table-border-color: white;
 #logsContainer {
   margin-left: 20px;
   margin-right: 20px;
+}
+
+#provider-filter, #patient-filter {
+  .define-filter {
+    font-style: italic;
+    padding: 10px 15px;
+  }
+}
+
+.ui-autocomplete {
+  z-index: 9999;
+}
+
+.ui-helper-hidden-accessible {
+  display: none;
 }
 
 .dropdown-btn {

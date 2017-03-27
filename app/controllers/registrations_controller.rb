@@ -27,7 +27,7 @@ class RegistrationsController < Devise::RegistrationsController
       yield resource if block_given?
       if is_flashing_format?
         flash_key = update_needs_confirmation?(resource, prev_unconfirmed_email) ?
-          :update_needs_confirmation : :updated
+            :update_needs_confirmation : :updated
         set_flash_message :notice, flash_key
       end
       sign_in resource_name, resource, :bypass => true
@@ -66,6 +66,9 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_up) { |u| u.permit(:first_name, :last_name, :email, :username, :password, :password_confirmation, :company, :company_url, :registry_name, :registry_id, :npi, :tin) }
+    devise_parameter_sanitizer.permit(:sign_up, keys:
+        [:first_name, :last_name, :email, :username, :password, :password_confirmation,
+         :company, :company_url, :registry_name, :registry_id, :npi, :tin])
   end
 end
+

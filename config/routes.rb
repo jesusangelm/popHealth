@@ -56,13 +56,23 @@ PopHealth::Application.routes.draw do
   resources :teams
 
   namespace :api do
-    get 'reports/qrda_cat3.xml', :to =>'reports#cat3', :format => :xml
+    get 'reports/*qrda_cat3.xml', :to =>'reports#cat3', :format => :xml
+    get 'reports/*cat1.zip', :to =>'reports#cat1_zip', :format => :zip
     get 'reports/cat1/:id/:measure_ids', :to =>'reports#cat1', :format => :xml
     get 'teams/team_providers/:id', :to => 'teams#team_providers'
     get 'reports/patients', :to => 'reports#patients'
     get 'reports/measures_spreadsheet', :to =>'reports#measures_spreadsheet'
     get 'teams/team_providers/:id', :to => 'teams#team_providers'
     get 'reports/team_report', :to => 'reports#team_report'
+
+    # The OID may contain periods, so specify a regex to allow that
+    get 'value_sets/:oid', :to => 'value_sets#show', :oid => /([^\/])+?/, :format => :json
+
+    resources :practices do
+      collection do
+        get :search
+      end
+    end
     
     resources :measure_baselines
     resources :practices
@@ -95,6 +105,9 @@ PopHealth::Application.routes.draw do
       end
     end
     resources :providers do
+      collection do
+        get :search
+      end
       resources :patients do
         collection do
           get :manage
@@ -115,6 +128,8 @@ PopHealth::Application.routes.draw do
         get :patients
         get :patient_results
         put :recalculate
+        post :filter
+        post :clearfilters
        end
     end
   end
