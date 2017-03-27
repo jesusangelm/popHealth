@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: https://github.com/OSEHRA/quality-measure-engine.git
-  revision: 20b7d550354e99c577688366f230f859fa7aebb4
+  revision: 11c396bff3c3729a6766e126417d132b46843d9c
   branch: bump_mongoid-carias-adj
   specs:
     quality-measure-engine (3.1.2)
@@ -90,7 +90,7 @@ GEM
       json
       rails (>= 4.0)
     arel (6.0.4)
-    autoprefixer-rails (6.7.6)
+    autoprefixer-rails (6.7.7.1)
       execjs
     bcrypt (3.1.11)
     bootstrap-datepicker-rails (1.3.0.2)
@@ -157,7 +157,7 @@ GEM
       jquery-rails
       railties (>= 3.1)
       sass-rails
-    jquery-rails (4.2.2)
+    jquery-rails (4.3.1)
       rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
@@ -241,7 +241,7 @@ GEM
       activesupport (= 4.2.8)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    raindrops (0.17.0)
+    raindrops (0.18.0)
     rake (12.0.0)
     ref (2.0.0)
     responders (2.3.0)
@@ -250,7 +250,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
-    ruby-ole (1.2.12)
+    ruby-ole (1.2.12.1)
     rubyzip (1.2.0)
     sass (3.4.23)
     sass-rails (5.0.6)
@@ -261,7 +261,7 @@ GEM
       tilt (>= 1.1, < 3)
     select2-rails (4.0.3)
       thor (~> 0.14)
-    simplecov (0.13.0)
+    simplecov (0.14.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
@@ -279,7 +279,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    sshkit (1.12.0)
+    sshkit (1.13.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     systemu (2.6.5)
@@ -292,10 +292,10 @@ GEM
       rack (>= 1, < 3)
     thor (0.19.4)
     thread_safe (0.3.6)
-    tilt (2.0.6)
+    tilt (2.0.7)
     turn (0.9.6)
       ansi
-    tzinfo (1.2.2)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uglifier (1.3.0)
       execjs (>= 0.3.0)
