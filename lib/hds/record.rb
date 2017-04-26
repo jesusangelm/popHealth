@@ -64,12 +64,14 @@ class Record
               query[section]['$elemMatch']['end_time'] = entry.end_time
             end
 
-            if entry.cda_identifier.root
-              query[section]['$elemMatch']['cda_identifier.root'] = entry.cda_identifier.root
-            end
+            if entry.cda_identifier
+              if entry.cda_identifier.root
+                query[section]['$elemMatch']['cda_identifier.root'] = entry.cda_identifier.root
+              end
 
-            if entry.cda_identifier.extension
-              query[section]['$elemMatch']['cda_identifier.extension'] = entry.cda_identifier.extension
+              if entry.cda_identifier.extension
+                query[section]['$elemMatch']['cda_identifier.extension'] = entry.cda_identifier.extension
+              end
             end
             
             exists = Record.where(query).first
