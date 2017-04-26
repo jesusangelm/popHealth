@@ -1,5 +1,7 @@
 /*
  *= require dataTables/src/demo_table_jui
+ *= require select2
+ *= require select2-bootstrap
 */
 @import "bootstrap-datepicker3";
 @import "variables";
@@ -16,3 +18,7 @@
 @import "register";
 @import "styles";
 @import "vis";
+@import "filters";
+
+@import "jquery-tagit/css/jquery.tagit";
+@import "jquery-tagit/css/tagit.ui-zendesk";

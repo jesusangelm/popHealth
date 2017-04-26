@@ -35,7 +35,9 @@ class Ability
         can :manage, :providers
       else
         can :read, Record do |patient|
-          user.practice_id == patient.practice_id
+          # todo: the || is a hack because patient.practice_id is _never_ initialized
+          (user.practice_id == patient.practice_id) ||
+            (patient[:provider_performances] && user.practice && patient[:provider_performances].map {|pp| pp['provider_id']}.include?(user.practice['provider_id']))
         end
         can :manage, Provider do |prov|
           if prov.practice

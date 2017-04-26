@@ -13,7 +13,7 @@ module Api
     include PaginationHelper
     include LogsHelper
     # load resource must be before authorize resource
-    load_resource except: %w{index create new}
+    load_resource except: %w{index create new search}
     authorize_resource
     respond_to :json
     before_filter :authenticate_user!
@@ -36,8 +36,13 @@ module Api
         end
       else
         log_api_call LogAction::VIEW, "Get list of providers"
-        @providers = Provider.where(parent_id: current_user.practice.provider_id)
-        authorize_providers(@providers)
+        if current_user.practice
+          my_prid=current_user.practice.provider_id
+          other_practices = Practice.only(:provider_id).all.map{|p| p[:provider_id]}.reject{|id| id==my_prid}
+          @providers = Provider.or({parent_id: my_prid},
+                       {_id: my_prid}).reject{|p| other_practices.include?(p[:_id])}
+          authorize_providers(@providers)
+        end
       end
       render json: @providers
     end
@@ -139,7 +144,35 @@ module Api
       render json: nil, status: 204
     end
 
-  private
+    # ruby routing is bizarre
+    api :GET, "/providers/search?npi=:npi&tin=:tin&address=:address", "Search for provider by partial NPI/TIN/Addresss"
+    param :npi, String, :desc => "National Provider Identifier", :required => false
+    param :tin, String, :desc => "Tax Information Number", :required => false
+    param :address, String, :desc => "Practice address piece", :required => false
+    def search
+      if ! params[:npi].nil?
+        providers = Provider.all({"cda_identifiers" => {"$elemMatch" => {'root' =>"2.16.840.1.113883.4.6", "extension" => /#{params[:npi]}/i }}})
+        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.npi})"} }
+      elsif ! params[:tin].nil?
+        providers = Provider.all({"cda_identifiers" => {"$elemMatch" => {'root' =>"2.16.840.1.113883.4.2", "extension" => /#{params[:tin]}/i }}})
+        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.tin})"} }
+      elsif !params[:address].nil?
+        # should be able to automate with something like Provider.fields.keys['<addresses_no>'].keys, but
+        # the Provider model in no way matches the current db collection, so spell it all out.
+        x=params[:address]
+        query={"addresses" => {"$elemMatch" => {"$or":[
+            {"city":/#{x}/i},
+            {"street":/#{x}/i},
+            {"state":/#{x}/i},
+            {"zip":/#{x}/i},
+            {"country":/#{x}/i}
+        ]}}}
+        providers = Provider.all(query)
+        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.addresses})"} }
+      end
+    end
+
+    private
 
     def authorize_providers(providers)
       providers.each do |p|

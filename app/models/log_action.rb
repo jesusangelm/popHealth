@@ -8,4 +8,5 @@ module LogAction
   UPDATE = "Update"
   VIEW = "View"
   EXPORT = "Export"
+  AUTH = "Authorization"
 end

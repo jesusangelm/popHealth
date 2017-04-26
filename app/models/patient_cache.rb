@@ -8,7 +8,8 @@ class PatientCache
   field :patient_id, type: String
   field :birthdate, type: Integer
   field :gender, type: String
-  
+  field :manual_exclusion, type: Boolean
+
   scope :by_provider, ->(provider, effective_start_date, effective_date) { where({'value.provider_performances.provider_id' => provider.id, 'value.effective_date'=>effective_date, 'value.effective_start_date'=>effective_start_date}) }
   scope :outliers, ->(patient) {where({'value.patient_id'=>patient.id})}
 
@@ -57,6 +58,6 @@ class PatientCache
   end
 
   def self.aggregate(*pipeline)
-    Mongoid.default_session.command(aggregate: 'patient_cache', pipeline: pipeline)['result']
+    Mongoid.default_client.command(aggregate: 'patient_cache', pipeline: pipeline)['result']
   end
 end

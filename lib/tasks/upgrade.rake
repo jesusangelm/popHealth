@@ -4,7 +4,7 @@ namespace :upgrade do
     # remove all unprocessed jobs - they will not be compatible with the updated 
     # QME. 
     Delayed::Job.all.destroy
-    Mongoid.default_session["rollup_buffer"].drop
+    Mongoid.default_client["rollup_buffer"].drop
     fields = ["population_ids",
               "IPP",
               "DENOM",
@@ -51,7 +51,7 @@ namespace :upgrade do
 
   task :upgrade_users => :environment do 
     User.all.each do |u|
-      selected = Mongoid.default_session["selected_measures"].where({username: u.username}).collect{|sm| sm["id"]}
+      selected = Mongoid.default_client["selected_measures"].where({username: u.username}).collect{|sm| sm["id"]}
       u.preferences["selected_measure_ids"] = selected
       u.save
     end

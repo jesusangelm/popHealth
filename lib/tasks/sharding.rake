@@ -12,7 +12,7 @@ SSHKit.config.backend.config.pty=true
   end
 
   def wait_for_start(host,port,tries=10)
-    session = Moped::Session.new(["#{host}:#{port}"])
+    session = Mongo::Client.new(["#{host}:#{port}"])
     session.use :config
     connected = false
     while tries > 0 && !connected do
@@ -30,13 +30,13 @@ SSHKit.config.backend.config.pty=true
   end
 
   def already_sharded(host,port,mongos_server)
-    session = Moped::Session.new([mongos_server])
+    session = Mongo::Client.new([mongos_server])
     session.use :config
     session["shards"].find({host: "#{host}:#{port}"}).count > 0
   end
   
   def add_shard_to_config(host,port,mongos_server,ph_db_name)
-    session = Moped::Session.new([mongos_server])
+    session = Mongo::Client.new([mongos_server])
     session.use :admin
     session.command({addshard: "#{host}:#{port}"})
     #just make sure that the the db has been shard enabled
@@ -48,14 +48,14 @@ SSHKit.config.backend.config.pty=true
   end
 
    def index_config_server(host,port,ph_db_name)
-    session = Moped::Session.new(["#{host}:#{port}"])
+    session = Mongo::Client.new(["#{host}:#{port}"])
     session.use ph_db_name
     session['records'].indexes.create({medical_record_number:1})
     session['patient_cache'].indexes.create({_id:1})
   end
 
   def shard_config_server(host,port,ph_db_name)
-    session = Moped::Session.new(["#{host}:#{port}"])
+    session = Mongo::Client.new(["#{host}:#{port}"])
     session.use ph_db_name
     session.use :admin
     session.command( {enablesharding: ph_db_name } )
@@ -70,7 +70,7 @@ SSHKit.config.backend.config.pty=true
         name = Pathname.new(entry.name).basename('.js').to_s
         contents = entry.get_input_stream.read
         fn = "function () {\n #{contents} \n }"
-        js_files << {_id: name, value: Moped::BSON::Code.new(fn)}
+        js_files << {_id: name, value: BSON::Code.new(fn)}
       end
     end
     js_files
@@ -120,10 +120,10 @@ SSHKit.config.backend.config.pty=true
   desc "Add the javascript files to a single host"
   task :add_js_to_host, [:host,:port,:ph_db_name,:bundle_path] => :environment do |t,args|
     js_files = parse_js_file(args.bundle_path)
-    session = Moped::Session.new(["#{args.host}:#{args.port}"])
+    session = Mongo::Client.new(["#{args.host}:#{args.port}"])
     session.use args.ph_db_name
     js_files.each do |js|
-        session["system.js"].insert(js)
+        session["system.js"].insert_one(js)
     end
   end
   
@@ -164,15 +164,15 @@ SSHKit.config.backend.config.pty=true
   task :setup_js, [:mongos_server,:ph_db_name,:bundle_path] => :environment do |t,args|
     #open zip and read js files
     js_files = parse_js_file(args.bundle_path)
-    session = Moped::Session.new(args.mongos_server)
+    session = Mongo::Client.new(args.mongos_server)
     session.use :admin
 
     session["shards"].find({}).each do |shard|
-      host_session = Moped::Session.new(shard["host"])
+      host_session = Mongo::Client.new(shard["host"])
       host_session.use args.ph_db_name
       # insert the js files into the system js collection on the shards
       js_files.each do |js|
-        host_session["system.js"].insert(js)
+        host_session["system.js"].insert_one(js)
       end
     end
   end

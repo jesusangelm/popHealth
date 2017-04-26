@@ -7,8 +7,8 @@ class PracticesControllerTest < ActionController::TestCase
     
     @user = User.where({email: 'admin@test.com'}).first    
     @non_user = User.where({email: 'noadmin@test.com'}).first    
-    @practice = Practice.all.first
-    @provider = Provider.first
+    @practice = Practice.all.asc("_id").first
+    @provider = Provider.asc("_id").first
     @provider.id = @provider._id
     Practice.all.each do |prac|
       prac.provider = @provider

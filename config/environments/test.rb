@@ -8,7 +8,7 @@ PopHealth::Application.configure do
   config.cache_classes = true
 
   # Configure static asset server for tests with Cache-Control for performance
-  config.serve_static_assets = true
+  config.serve_static_files = true
   config.static_cache_control = "public, max-age=3600"
 
   # Show full error reports and disable caching
@@ -28,6 +28,8 @@ PopHealth::Application.configure do
   config.action_mailer.default_url_options = {:host => 'localhost', :port => 3000}
 
   config.eager_load = false
+
+  config.active_support.test_order = :sorted
 
   # Use SQL instead of Active Record's schema dumper when creating the test database.
   # This is necessary if your schema can't be completely dumped by the schema dumper,

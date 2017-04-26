@@ -21,7 +21,7 @@ module Api
       @npi_user.staff_role=false
       @npi_user.save
       
-      @practice = Practice.all.first
+      @practice = Practice.all.asc("_id").first
       
       identifier = CDAIdentifier.new(:root => "Organization", :extension => @practice.organization)
       practice_provider = Provider.where('cda_identifiers.root' => "Organization").first

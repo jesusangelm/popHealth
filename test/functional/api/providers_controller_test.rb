@@ -9,8 +9,8 @@ include Devise::TestHelpers
       @user = User.where({email: 'admin@test.com'}).first      
       @provider = Provider.where({family_name: "Darling"}).first
       
-      @practice1 = Practice.first
-      @practice2 = Practice.last
+      @practice1 = Practice.asc("_id").first
+      @practice2 = Practice.asc("_id").last
       
       @staff1 = User.where({email: 'noadmin@test.com'}).first   
       @staff2 = User.where({email: 'noadmin2@test.com'}).first

@@ -50,7 +50,7 @@ class AdminController < ApplicationController
     log_admin_controller_call LogAction::DELETE, "Remove caches"
     HealthDataStandards::CQM::QueryCache.delete_all
     PatientCache.delete_all
-    Mongoid.default_session["rollup_buffer"].drop()
+    Mongoid.default_client["rollup_buffer"].drop()
     redirect_to action: 'patients'
   end
 
@@ -73,7 +73,6 @@ class AdminController < ApplicationController
     file_name = "patient_upload" + Time.now.to_i.to_s + rand(1000).to_s
 
     temp_file = File.new(file_location + "/" + file_name, "w")
-
     File.open(temp_file.path, "wb") { |f| f.write(file.read) }
 
     Delayed::Job.enqueue(ImportArchiveJob.new({'practice' => practice, 'file' => temp_file,'user' => current_user}),:queue=>:patient_import)

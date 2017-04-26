@@ -168,6 +168,17 @@ namespace :pophealth do
     task("pophealth:remove_artifacts").invoke
   end
 
+  desc 'Adds date modification to import of bundle on disk'
+  task :import , [:bundle_path] do |task, args|
+    de = ENV['delete_existing'] || false
+    um = ENV['update_measures'] || false
+    @bundle_name=args.bundle_path
+    puts "Modifying bundle #{@bundle_name} to support variable date ranges"
+    modify_bundle_dates(@bundle_name)
+    task("bundle:import").invoke(@bundle_name,de, um , ENV['type'])
+    task("pophealth:remove_artifacts").invoke
+  end
+
   desc 'Removes Cypress artifacts of patient_cache, query_cache, and records'
   task :remove_artifacts => :environment do 
     puts "Cleaning out records and caches"

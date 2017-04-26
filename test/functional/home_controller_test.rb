@@ -19,7 +19,7 @@ class HomeControllerTest < ActionController::TestCase
   
   test "default effective date for new user" do
     sign_in @admin
-    time = Time.gm(2013,12,31).to_i
+    time = Time.gm(2015,12,31).to_i
     user = User.new    
     assert_equal time, user.effective_date  
   end

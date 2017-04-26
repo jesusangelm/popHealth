@@ -1,0 +1,46 @@
+<div class="modal fade" id="filterProvidersDialog" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"  role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        {{#button "close" class="close" data-dismiss="modal" aria-hidden="true"}}&times;{{/button}}
+        <h4 class="modal-title" id="modalTitle">Filter Providers</h4>
+      </div>
+      <div class="modal-body">
+        <form id="filter_providers_form" action="api/filters/provider" method="post" class="form-horizontal" enctype="multipart/form-data" role="form">
+          <div style="margin:0;padding:0;display:inline">
+            <input name="utf8" type="hidden" value="✓">
+            <input name="_method" type="hidden" value="post">
+            <input name="authenticity_token" type="hidden" value="{{token}}">
+          </div>
+          <div class="form-group">
+            <label for="npiTags" class="col-lg-{{titleSize}} control-label">NPI:</label>
+            <div class="col-lg-{{dataSize}}">
+              <select id="npiTags" class="tag-input" multiple="multiple"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="tinTags" class="col-lg-{{titleSize}} control-label">TIN:</label>
+            <div class="col-lg-{{dataSize}}">
+              <select id="tinTags" class="tag-input" multiple="multiple"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="providerTypeTags" class="col-lg-{{titleSize}} control-label">Provider Type:</label>
+            <div class="col-lg-{{dataSize}}">
+              <select id="providerTypeTags" class="tag-input" multiple="multiple"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="addressTags" class="col-lg-{{titleSize}} control-label">Practice Address:</label>
+            <div class="col-lg-{{dataSize}}">
+              <select id="addressTags" class="tag-input" multiple="multiple"></select>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="save_and_run" class="btn btn-default" data-dismiss="modal">Save and Run</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

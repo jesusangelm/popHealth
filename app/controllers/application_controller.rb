@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include LogsHelper
+
   protect_from_forgery :with => :exception
   layout :layout_by_resource
   before_filter :check_ssl_used
@@ -28,6 +30,7 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from CanCan::AccessDenied do |exception|
+    log_failed_authorization exception
     render :file => "public/403", :format=>"html", :status=> 403, :alert => exception.message
   end
 

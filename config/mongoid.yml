@@ -1,17 +1,17 @@
 development:
-  sessions:
+  clients:
     default:
       database: pophealth-development
       hosts:
         - localhost:27017
 test:
-  sessions:
+  clients:
     default:
       database: pophealth-test
       hosts:
         - localhost:27017
 production:
-  sessions:
+  clients:
     default:
       database: pophealth-production
       hosts:

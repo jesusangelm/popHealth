@@ -17,6 +17,7 @@ class Thorax.Models.Measure extends Thorax.Model
 
     attrs.submeasures = new SubCollection subs, parent: this
     attrs
+
   sync: (method, model, options) ->
     if method isnt 'update'
       super

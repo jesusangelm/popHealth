@@ -1,5 +1,59 @@
 <div class="sidebar">
   {{view sidebarView}}
+
+  <h3>Filters</h3>
+  <div class="panel-group" id="providerFilterSelectors">
+    <div class="panel panel-default">
+      <div class="toggleable panel-heading" data-toggle="collapse" data-parent="#providerFilterSelectors"
+           data-target="#provider-filter">
+        <h4 class="panel-title">
+          <div class="selection-pull-out">
+            <i class="panel-chevron glyphicon glyphicon-chevron-right"></i>
+          </div>
+          Provider Filter
+        </h4>
+      </div>
+      <div id="provider-filter" class="panel-collapse collapse">
+        <div class="panel-body">
+          <div class="filter-details"></div>
+          <div class="btn-block-container">
+            <a href="#" id="define-provider-filter" class="define-filter">Define a filter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-group" id="patientFilterSelectors" style="padding-bottom: 20px;">
+    <div class="panel panel-default">
+      <div class="toggleable panel-heading" data-toggle="collapse" data-parent="#patientFilterSelectors"
+           data-target="#patient-filter">
+        <h4 class="panel-title">
+          <div class="selection-pull-out">
+            <i class="panel-chevron glyphicon glyphicon-chevron-right"></i>
+          </div>
+          Patient Filter
+        </h4>
+      </div>
+      <div id="patient-filter" class="panel-collapse collapse">
+        <div class="panel-body">
+          <div class="filter-details"></div>
+          <div class="btn-block-container">
+            <a href="#" id="define-patient-filter" class="define-filter">Define a filter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-group">
+    <div class="panel panel-default">
+      <h4 class="panel-title">
+        <div class="btn-block-container">
+          <div id="listfilters">{{patientFilterNames}}</div>
+          <a href="#" id="reset-all-filters" class="define-filter">Clear all patient/provider filters</a>
+        </div>
+      </h4>
+    </div>
+  </div>
 </div>
 <div class="main">
   {{view submeasureView}}

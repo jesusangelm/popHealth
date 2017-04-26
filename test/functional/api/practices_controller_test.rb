@@ -8,7 +8,7 @@ require 'test_helper'
       dump_database
       collection_fixtures 'users', 'practices'
       @user = User.where({email: 'admin@test.com'}).first
-      @practice = Practice.first
+      @practice = Practice.asc("_id").first
     end
 
     test "get practice index" do

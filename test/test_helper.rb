@@ -17,7 +17,7 @@ class ActiveSupport::TestCase
     User.delete_all
     Provider.delete_all
     Record.delete_all
-    db = Mongoid.default_session
+    db = Mongoid.default_client
     db['measures'].drop()
     db['selected_measures'].drop()
     db['records'].drop
@@ -30,10 +30,10 @@ class ActiveSupport::TestCase
     MONGO_DB['races'].drop() if MONGO_DB['races']
     MONGO_DB['ethnicities'].drop() if MONGO_DB['ethnicities']
     JSON.parse(File.read(File.join(Rails.root, 'test', 'fixtures', 'code_sets', 'races.json'))).each do |document|
-      MONGO_DB['races'].insert(document)
+      MONGO_DB['races'].insert_one(document)
     end
     JSON.parse(File.read(File.join(Rails.root, 'test', 'fixtures', 'code_sets', 'ethnicities.json'))).each do |document|
-      MONGO_DB['ethnicities'].insert(document)
+      MONGO_DB['ethnicities'].insert_one(document)
     end
   end
 
@@ -57,7 +57,11 @@ class ActiveSupport::TestCase
       Dir.glob(File.join(Rails.root, 'test', 'fixtures', collection, '*.json')).each do |json_fixture_file|
         fixture_json = JSON.parse(File.read(json_fixture_file))
         set_mongoid_ids(fixture_json)
-        MONGO_DB[collection].insert(fixture_json)
+        if fixture_json.kind_of?(Array)
+          MONGO_DB[collection].insert_many(fixture_json)
+        else
+          MONGO_DB[collection].insert_one(fixture_json)
+        end
       end
     end
   end
@@ -65,7 +69,9 @@ class ActiveSupport::TestCase
   def set_mongoid_ids(json)
     if json.kind_of?( Hash)
       json.each_pair do |k,v|
-        if v && v.kind_of?( Hash )
+        if (v && v.kind_of?(Array))
+          json[k].each {|item| set_mongoid_ids(item)}
+        elsif v && v.kind_of?( Hash )
           if v["$oid"]
             json[k] = BSON::ObjectId.from_string(v["$oid"])
           else

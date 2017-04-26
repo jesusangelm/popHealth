@@ -12,4 +12,8 @@ class Practice
   has_many :users
   has_many :records
   
+  def providers
+    Provider.all({"parent_ids" => self.provider_id })
+  end
+
 end

@@ -8,7 +8,8 @@ require "rails/test_unit/railtie"
 require "sprockets/railtie"
 require 'spreadsheet'
 require 'bson'
-require 'moped'
+require 'mongo'
+require 'date'
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
@@ -19,7 +20,6 @@ end
 
 module PopHealth
   class Application < Rails::Application
-    Moped::BSON=BSON
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -27,6 +27,7 @@ module PopHealth
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
     config.autoload_paths += %W(#{Rails.root}/lib/hds)
+    config.autoload_paths += %W(#{Rails.root}/lib/devise) # luke's fix for bad bad login page
     config.autoload_paths += %W(#{Rails.root}/lib/measures)
     config.autoload_paths += %W(#{Rails.root}/lib/devise)
     # Only load the plugins named here, in the order given (default is alphabetical).
@@ -49,7 +50,7 @@ module PopHealth
     config.relative_url_root = ""
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
-
+    config.log_level = :warn
     # Enable the asset pipeline
     config.assets.enabled = true
 
@@ -59,7 +60,7 @@ module PopHealth
     # add devise views
 #    config.paths["app/views/devise"]
     config.paths["app/views"] << "app/views/devise"
-
+    Mongo::Logger.logger.level = ::Logger::INFO
     require 'will_paginate/array'
   end
 end

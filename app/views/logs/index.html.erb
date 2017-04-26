@@ -52,7 +52,7 @@
 
     <table id="patientTable" class="table table-hover">
       <tr>
-        <th><%= link_to 'Timestamp', time_range_params_plus(:sort => 'created_at') %></th>
+        <th><%= link_to "Timestamp (#{Time.zone.now.zone})", time_range_params_plus(:sort => 'created_at') %></th>
         <th><%= link_to 'Username', time_range_params_plus(:sort => 'username') %></th>
         <th><%= link_to 'Event', time_range_params_plus(:sort => 'event') %></th>
         <th><%= link_to 'Description', time_range_params_plus(:sort => 'description') %></th>
@@ -60,17 +60,17 @@
         <% if current_user.admin? %>
           <th><%= link_to 'Affected User', time_range_params_plus(:sort => 'affected_user') %></th>
         <% end %>
-        <th><%= link_to 'File SHA1 Hash', time_range_params_plus(:sort => 'checksum') %></th>
+        <!-- <th><%= link_to 'File SHA1 Hash', time_range_params_plus(:sort => 'checksum') %></th> -->
       </tr>
       <% @logs.each do |log| -%>
       <tr>
-        <td><%= log.created_at %></td>
+        <td><%= log.created_at.iso8601.in_time_zone %></td>
         <td><%= log.username %></td>
         <td><%= log.event %></td>
         <td><%= log.description %></td>
         <td><%= log.medical_record_number %></td>
         <td><%= log.affected_user %></td>
-        <td><%= log.checksum %></td>
+        <!-- <td><%= log.checksum %></td> -->
       </tr>
       <% end -%>
     </table>

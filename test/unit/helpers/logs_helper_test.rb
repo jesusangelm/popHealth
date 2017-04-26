@@ -29,7 +29,7 @@ class LogsHelperTest < ActionView::TestCase
     assert_difference('Log.count') do
       log_controller_call LogAction::ADD, "Controller Test"
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal "Controller - Controller Test Parameters: {}", log.description
   end
 
@@ -37,7 +37,7 @@ class LogsHelperTest < ActionView::TestCase
     assert_difference('Log.count') do
       log_api_call LogAction::ADD, "API Test"
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal "API - API Test Parameters: {}", log.description
   end
 
@@ -45,7 +45,7 @@ class LogsHelperTest < ActionView::TestCase
     assert_difference('Log.count') do
       log_admin_api_call LogAction::ADD, "Admin API Test"
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal "Admin API - Admin API Test Parameters: {}", log.description
   end
 
@@ -53,7 +53,7 @@ class LogsHelperTest < ActionView::TestCase
     assert_difference('Log.count') do
       log_admin_controller_call LogAction::ADD, "Admin Controller Test"
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal "Admin Controller - Admin Controller Test Parameters: {}", log.description
   end
 
@@ -65,11 +65,11 @@ class LogsHelperTest < ActionView::TestCase
   end
 
   test "should log MRN when patient is available" do
-    @patient = Record.first
+    @patient = Record.where({"medical_record_number":{"$exists" => true}}).first
     assert_difference('Log.count') do
       log_call LogAction::ADD, "Test", "Test details", true, true, true, true
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal @patient.medical_record_number, log.medical_record_number
   end
 
@@ -82,16 +82,18 @@ class LogsHelperTest < ActionView::TestCase
     assert_difference('Log.count') do
       log_call LogAction::ADD, "Test", "Test details", true, true, true, true
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal "Test details Parameters: {:id=>\"23\"}", log.description
+
+    params = nil
   end
 
   test "should log affected username when it is available" do
-    @user = User.last
+    @user = User.asc("_id").last
     assert_difference('Log.count') do
       log_call LogAction::ADD, "Test", "Test details", true, true, true, true
     end
-    log = Log.last
+    log = Log.asc("_id").last
     assert_equal @user.username, log.affected_user
   end
 

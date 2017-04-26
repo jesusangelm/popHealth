@@ -39,7 +39,7 @@ module Api
         identifier = CDAIdentifier.new(:root => "Organization", :extension => @practice.organization)
         provider = Provider.new(:given_name => @practice.name)
         provider.cda_identifiers << identifier
-        provider.parent = Provider.root
+        # provider.parent = Provider.root  # was this just cut and paste from providers?
         provider.save
         @practice.provider = provider
         
@@ -57,6 +57,22 @@ module Api
       render :json => @practice
     end
     
+    api :GET, "/practices/search?tin=:tin&address=:address", "Search for practice by a full or partial TIN"
+    param :tin, String, :desc => "Tax Identification Number", :required => false
+    param :address, String, :desc => "Provider/Practice Address", :required => false
+    def search
+      if !params[:tin].blank?
+        practices = Provider.all({"cda_identifiers.root" => "2.16.840.1.113883.4.2", "cda_identifiers.extension" => /.*#{params[:tin]}.*/i })
+        render json: practices.map {|p| { id: p.practice.id, name: "#{p.full_name} (#{p.tin})"} }
+      elsif !params[:address].blank?
+        practices = Practice.all({"address" => /.*#{params[:address]}.*/i })
+        render json: practices.map { |p| { id: p.id, name: p.address } }
+      else
+        render :nothing => true, :status => 400
+      end
+    end
+
+
     private 
 
     def validate_authorization!

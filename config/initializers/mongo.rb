@@ -1,5 +1,14 @@
-MONGO_DB = Mongoid.default_session
+MONGO_DB = Mongoid.default_client
 
+if $mongo_client.nil?
+  host = MONGO_DB.cluster.addresses[0].host #Mongoid::Clients.default.cluster.addresses[0].host
+  port = MONGO_DB.cluster.addresses[0].port #Mongoid::Clients.default.cluster.addresses[0].port
+  database=MONGO_DB.options[:database] #Mongoid::Clients.default.options[:database]
+  options={}
+  options={:auth_source => MONGO_DB.options[:auth_source], :user => MONGO_DB.options[:user], :password=>MONGO_DB.options[:password]} if (MONGO_DB.options[:user].present?)
+  $mongo_client = Mongo::Client.new("mongodb://#{host}:#{port}/#{database}",options)
+
+end
 # js_collection = MONGO_DB['system.js']
 
 # unless js_collection.find_one('_id' => 'contains')

@@ -163,15 +163,11 @@
 
     <% end %>
     <td>
-      <% if Provider.valid_npi?(user.npi) || user.staff_role %>
-        N/A
-      <% else %>
-        <% if user.admin? -%>
-        Yes - <a href="#" class="demote" data-role="admin" data-username="<%= user.username %>">revoke</a>
-        <% else -%>
-        No - <a href="#" class="promote" data-role="admin" data-username="<%= user.username %>">grant</a>
-        <% end -%>
-      <% end %>
+      <% if user.admin? -%>
+      Yes - <a href="#" class="demote" data-role="admin" data-username="<%= user.username %>">revoke</a>
+      <% else -%>
+      No - <a href="#" class="promote" data-role="admin" data-username="<%= user.username %>">grant</a>
+      <% end -%>
     </td>
     <td>
       <% if Provider.valid_npi?(user.npi) %>

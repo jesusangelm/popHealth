@@ -12,7 +12,12 @@ class ImportArchiveJob
   end
 
   def perform
+    begin
     missing_patients = BulkRecordImporter.import_archive(File.new(@file), nil, @practice)
+    rescue => e
+      puts Date.new+':'+e.backtrace
+      raise
+    end
     missing_patients.each do |id|
       Log.create(:username => @current_user.username, :event => "patient was present in patient manifest but not found after import", :medical_record_number => id)
     end
