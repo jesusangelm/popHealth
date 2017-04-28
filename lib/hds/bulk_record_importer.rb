@@ -7,47 +7,46 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
   
   def self.import_archive(file, failed_dir=nil, practice=nil)
     begin
-    failed_dir ||=File.join(File.dirname(file))
+      failed_dir ||= File.join(File.dirname(file), "failed")
 
-    patient_id_list = nil
+      patient_id_list = nil
 
-    Zip::ZipFile.open(file.path) do |zipfile|
-      zipfile.entries.each do |entry|
-        if entry.name
-          if entry.name.split("/").last == "patient_manifest.txt"
-            patient_id_list = zipfile.read(entry.name)
-            next
+      Zip::ZipFile.open(file.path) do |zipfile|
+        zipfile.entries.each do |entry|
+          if entry.name
+            if entry.name.split("/").last == "patient_manifest.txt"
+              patient_id_list = zipfile.read(entry.name)
+              next
+            end
+          end
+          next if entry.directory?
+          data = zipfile.read(entry.name)
+          self.import_file(entry.name,data,failed_dir,nil,practice)
+        end
+      end
+
+      missing_patients = []
+
+      #if there was a patient manifest, theres a patient id list we need to load
+      if patient_id_list
+        patient_id_list.split("\n").each do |id|
+          patient = Record.where(:medical_record_number => id).first
+          if patient == nil
+            missing_patients << id
           end
         end
-        next if entry.directory?
-        data = zipfile.read(entry.name)
-        self.import_file(entry.name,data,failed_dir,nil,practice)
       end
-    end
 
-    missing_patients = []
-
-    #if there was a patient manifest, theres a patient id list we need to load
-    if patient_id_list
-      patient_id_list.split("\n").each do |id|
-        patient = Record.where(:medical_record_number => id).first
-        if patient == nil
-          missing_patients << id
-        end
+      missing_patients
+    rescue => ex
+      FileUtils.mkdir_p(failed_dir)
+      FileUtils.cp(file, File.join(failed_dir, File.basename(file)))
+      File.open(File.join(failed_dir,"#{File.basename(file)}.error"), "w") do |f|
+        f.puts($!.message)
+        f.puts($!.backtrace)
       end
+      raise $!
     end
-
-    missing_patients
-
-  rescue => ex
-    FileUtils.mkdir_p(failed_dir)
-    FileUtils.cp(file,File.join(failed_dir,File.basename(file)))
-    File.open(File.join(failed_dir,"#{file}.error")) do |f|
-      f.puts($!.message)
-      f.puts($!.backtrace)
-    end
-    raise $!
-  end
   end
 
   def self.import_file(name,data,failed_dir,provider_map={}, practice=nil)
