@@ -14,8 +14,10 @@ Install bower in order to pull down the web vendor assets. If you have Node.js N
 
 In the popHealth directory
 
-````bundle install
-bower install````
+```
+bundle install
+bower install
+```
 
 Additional Information
 ----------------------
