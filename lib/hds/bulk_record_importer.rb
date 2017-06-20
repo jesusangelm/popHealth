@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'thread'
 
 class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
   def initialize
@@ -10,7 +11,8 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
       failed_dir ||= File.join(File.dirname(file), "failed")
 
       patient_id_list = nil
-
+      tasks = Queue.new
+      
       Zip::ZipFile.open(file.path) do |zipfile|
         zipfile.entries.each do |entry|
           if entry.name
@@ -21,9 +23,30 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
           end
           next if entry.directory?
           data = zipfile.read(entry.name)
-          self.import_file(entry.name,data,failed_dir,nil,practice)
+          tasks << {name: entry.name, data: data, failed_dir: failed_dir, practice: practice}
         end
       end
+
+      # Build an array of worker threads that will access our thread-safe task queue,
+      # and run the import for each file in the task queue.
+      workers = []
+      APP_CONFIG['patient_import_threads'].to_i.times do
+        workers << Thread.new do
+          until tasks.empty?
+            # To avoid deadlock, we pass true to pop so it throws if the queue is empty.
+            # We ignore the exception, and just use it as an indication that all the work
+            # is done.  Without this the call to pop would just hang until more work shows
+            # up, and this would never finish.
+            row = tasks.pop(true) rescue nil
+            if row
+              self.import_file(row[:name],row[:data],row[:failed_dir],nil,row[:practice])
+            end
+          end
+        end
+      end
+
+      # Process the threads and wait until all are completed before continuing
+      workers.each { |t| t.join }
 
       missing_patients = []
 
