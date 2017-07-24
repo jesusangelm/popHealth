@@ -46,7 +46,7 @@ PopHealth.viz.populationChart = ->
         arrowOffset = if data.lower_is_better then margin.left else margin.left + xScale(data.DENOM)
         arrow.append('path')
           .attr('class', 'arrow')
-          .attr('d', d3.svg.symbol().size(240).type('triangle-up'))
+          .attr('d', d3.symbol().size(240).type(d3.symbolTriangle))
           .attr('transform', "translate(#{arrowOffset}, #{height + 12})")
       my.update(data)
 
