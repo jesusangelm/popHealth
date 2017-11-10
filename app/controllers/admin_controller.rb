@@ -17,6 +17,13 @@ class AdminController < ApplicationController
     @practices = Practice.asc(:name).map {|org| [org.name, org.id]}
   end
 
+  def jobs
+    log_admin_controller_call LogAction::VIEW, "View jobs control panel"
+    @job_count = Delayed::Job.count
+    @patient_job_count = Delayed::Job.where(queue: "patient_import").count
+    @calculation_job_count = Delayed::Job.where(queue: "calculation").count
+  end
+
   def user_profile
     @user = User.find(params[:id])
     log_admin_controller_call LogAction::VIEW, "Get user profie"
@@ -44,6 +51,12 @@ class AdminController < ApplicationController
     log_admin_controller_call LogAction::DELETE, "Remove all #{Record.all.length} patients", true
     Record.delete_all
     redirect_to action: 'patients'
+  end
+
+  def remove_jobs
+    log_admin_controller_call LogAction::DELETE, "Remove all #{Delayed::Job.all.length} jobs", true
+    Delayed::Job.delete_all
+    redirect_to action: 'jobs'
   end
 
   def remove_caches

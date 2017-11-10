@@ -11,11 +11,13 @@ PopHealth::Application.routes.draw do
   post "admin/disable"
   post "admin/update_npi"
   get "admin/patients"
+  get "admin/jobs"
   put "admin/upload_patients"
   put "admin/upload_providers"
   delete "admin/remove_patients"
   delete "admin/remove_caches"
   delete "admin/remove_providers"
+  delete "admin/remove_jobs"
   post 'api/measures/finalize'
   post 'api/measures/update_metadata'
   get "logs/index"
