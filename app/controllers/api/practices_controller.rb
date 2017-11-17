@@ -30,10 +30,11 @@ module Api
     api :POST, "/practices", "Create a practice"
     param :name, String, :desc => "Practice Name", :required => true
     param :organization, String, :desc => "Practice organization", :required => true
-    param :user, String, :desc => "User to assign to practice", :required => false
+    param :user, String, :desc => "User to assign to practice (UserID)", :required => false
+    param :address, String, :desc => "Address",  :required => false
     formats ['json']
     def create
-      @practice = Practice.create(:name => params[:name], :organization => params[:organization])
+      @practice = Practice.create(:name => params[:name], :organization => params[:organization], :address => params[:address])
 
       if @practice.save!
         identifier = CDAIdentifier.new(:root => "Organization", :extension => @practice.organization)
