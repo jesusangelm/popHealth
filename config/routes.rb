@@ -30,6 +30,7 @@ PopHealth::Application.routes.draw do
   get 'home/check_authorization'
   delete "practices/remove_patients"
   delete "practices/remove_providers"
+  delete "/api/admin/patients/deletePatientsFromPractice"
 
   put 'admin/patient', :to => 'admin/patients#upload_single_patient'
 
