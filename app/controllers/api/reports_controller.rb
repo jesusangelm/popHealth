@@ -48,7 +48,7 @@ module Api
         when /2015/ =~ bndl
           cat3ver='r1_1'
         when /201[67]/
-          cat3ver='r2'
+          cat3ver='r2_1'
         else
           cat3ver='r1'
       end
