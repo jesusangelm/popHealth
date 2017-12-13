@@ -1,0 +1,25 @@
+<div id="pageContent" style="padding:20px;">
+  <h3>Background Jobs</h3>
+
+  <table width="500px">
+    <tr>
+      <td colspan="2">Total jobs:</td>
+      <td><%= @job_count %> jobs</td>
+      <td>
+        <%= button_to "Delete All Jobs", "/admin/remove_jobs", 'method' => 'delete', 'class' => 'btn btn-danger'%>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Measure Calculation:</td>
+      <td><%= @calculation_job_count%> jobs</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Patient Import:</td>
+      <td><%= @patient_job_count%> jobs</td>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</div> <!-- pageContent -->

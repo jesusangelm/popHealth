@@ -14,6 +14,8 @@ defaults: &defaults
   allow_user_update: true
   # add patient management link
   patient_management_enabled: true
+  # add job management link
+  job_management_enabled: true
   # title of the practice
   practice_name: 'General Hospital'
   disable_provider_filters: false
