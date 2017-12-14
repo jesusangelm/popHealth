@@ -278,7 +278,6 @@ module Api
       user = User.where(:username => params[:username]).first || current_user
       effective_date = params[:effective_date] || current_user.effective_date
       effective_start_date = params[:effective_start_date] || current_user.effective_start_date
-      #measure_ids = user.preferences['selected_measure_ids']
       measure_ids = params[:measure_ids] ||user.preferences["selected_measure_ids"]
 
       unless measure_ids.empty?
