@@ -31,13 +31,6 @@ defaults: &defaults
   # use workaround for new measure bundle 2.6.0 to get measure results
   ignore_provider_performance_dates: true
 
-  # The number of threads to use for importing patient records.  Note that you may not see
-  # a huge performance gain depending on your setup - given that Mongo locks a collection
-  # for an insert, if most of the activity is inserting into Mongo that will end up being
-  # the bottleneck.  More threads are helpful if you have additional processing that takes
-  # place for each file before it's imported.
-  patient_import_threads: 4
-
    # Enable/disable the viewing of the measure baseline report
   show_measure_baseline_report: false
 
