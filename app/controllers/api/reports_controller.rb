@@ -261,6 +261,7 @@ module Api
 
     api :GET, '/reports/measures_spreadsheet', "Retrieve a spreadsheet of measure calculations"
     param :username, String, :desc => 'Username of user to generate reports for'
+    param :measure_ids, Array, :desc => 'The HQMF ID of the measures to include in the document', :required => false
     param :effective_date, String, :desc => 'Time in seconds since the epoch for the end date of the reporting period'
     param :effective_start_date, String, :desc => 'Time in seconds since the epoch for the start date of the reporting period'
     param :provider_id, String, :desc => 'The Provider ID for spreadsheet generation', :required => true
@@ -277,7 +278,7 @@ module Api
       user = User.where(:username => params[:username]).first || current_user
       effective_date = params[:effective_date] || current_user.effective_date
       effective_start_date = params[:effective_start_date] || current_user.effective_start_date
-      measure_ids = user.preferences['selected_measure_ids']
+      measure_ids = params[:measure_ids] ||user.preferences["selected_measure_ids"]
 
       unless measure_ids.empty?
         selected_measures = measure_ids.map { |id| HealthDataStandards::CQM::Measure.where(:id => id) }
