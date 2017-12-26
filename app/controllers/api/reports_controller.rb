@@ -20,59 +20,77 @@ module Api
     param :effective_start_date, String, :desc => 'Time in seconds since the epoch for the end date of the reporting period',
           :required => false
     param :provider_id, String, :desc => 'The Provider ID for CATIII generation'
+    param :cms_program, String, :desc => 'CMS Program Name NONE/MIPS',
+          :required => false
     description <<-CDESC
       This action will generate a QRDA Category III document. If measure_ids and effective_date are not provided,
       the values from the user's dashboard will be used.
     CDESC
 
     def cat3
-      log_api_call LogAction::EXPORT, "QRDA Category 3 report"
-      measure_ids = params[:measure_ids] ||current_user.preferences["selected_measure_ids"]
+      begin
+        log_api_call LogAction::EXPORT, "QRDA Category 3 report"
+        measure_ids = params[:measure_ids] ||current_user.preferences["selected_measure_ids"]
+        program = !params[:cms_program] == nil ? params[:cms_program].upcase : APP_CONFIG['qrda_cms_program'].upcase
+        practice = Practice.where({'provider_id' => params[:provider_id]}).first
 
-      # C4-mods : should we flag them so they can be conditional?
-      fname=''
-      cms_measures=nil
-      if !measure_ids.nil?
-        cms_measures=HealthDataStandards::CQM::Measure.in(:hqmf_id => measure_ids).collect { |m| m.cms_id }.uniq
-        fname=cms_measures.join('_')+'_'
-      end
-      c4_filters=current_user.preferences['c4filters']
-      fname = fname+c4_filters.join('_')+'_' if !c4_filters.nil?
-      # end C4-mods
+        # C4-mods : should we flag them so they can be conditional?
+        fname=''
+        cms_measures=nil
+        if !measure_ids.nil?
+          cms_measures=HealthDataStandards::CQM::Measure.in(:hqmf_id => measure_ids).collect { |m| m.cms_id }.uniq
+          fname=cms_measures.join('_')+'_'
+        end
+        c4_filters=current_user.preferences['c4filters']
+        fname = fname+c4_filters.join('_')+'_' if !c4_filters.nil?
+        # end C4-mods
 
-      fname=fname+'qrda_cat3.xml'
-      filter = measure_ids=="all" ? {} : {:hqmf_id.in => measure_ids}
-      bndl = (b = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first) ? b.version : 'n/a'
-      cat3ver=nil
-      case bndl
-        when /2015/ =~ bndl
-          cat3ver='r1_1'
-        when /201[67]/
-          cat3ver='r2_1'
-        else
-          cat3ver='r1'
-      end
-      exporter = HealthDataStandards::Export::Cat3.new(cat3ver)
-      effective_date = params["effective_date"] || current_user.effective_date || Time.gm(2015, 12, 31)
-      effective_start_date = params["effective_start_date"] || current_user.effective_start_date || Time.gm(2014, 12, 31)
-      end_date = Time.at(effective_date.to_i)
-      provider = provider_filter = nil
-      if params[:provider_id].present?
-        provider = Provider.find(params[:provider_id])
-        authorize! :read, provider
+        fname=fname+'qrda_cat3.xml'
+        filter = measure_ids=="all" ? {} : {:hqmf_id.in => measure_ids}
+        bndl = (b = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first) ? b.version : 'n/a'
+        cat3ver=nil
+        case bndl
+          when /2015/ =~ bndl
+            cat3ver='r1_1'
+          when /201[67]/
+            case program
+              when 'MIPS'
+                cat3ver='r2_1/mips'
+                @cms_program = practice ? 'MIPS_GROUP' : 'MIPS_INDIV'
+              when 'NONE'
+                cat3ver='r2_1'
+            end
+          else
+            cat3ver='r1'
+        end
+        exporter = HealthDataStandards::Export::Cat3.new(cat3ver)
+        effective_date = params["effective_date"] || current_user.effective_date || Time.gm(2015, 12, 31)
+        effective_start_date = params["effective_start_date"] || current_user.effective_start_date || Time.gm(2014, 12, 31)
+        end_date = Time.at(effective_date.to_i)
+        providers = []
+        provider_filter = nil
         provider_filter = {}
-        provider_filter['filters.providers'] = params[:provider_id] if params[:provider_id].present?
+        if params[:provider_id].present?
+          if practice
+            providers = Provider.where(parent_id: params[:provider_id]).to_a
+          else
+            providers = Provider.find(params[:provider_id]).to_a
+          end
+          provider_filter['filters.providers'] = params[:provider_id] if params[:provider_id].present?
+        end
+        xml = exporter.export(HealthDataStandards::CQM::Measure.top_level.where(filter),
+                              generate_header(providers),
+                              effective_date.to_i,
+                              Time.at(effective_start_date.to_i),
+                              end_date,
+                              cat3ver,
+                              provider_filter)
+        # FileUtils.mkdir('results') if !File.exist?('results')
+        # File.open('results/'+fname, 'w') { |f| f.write(xml) }
+        render xml: xml, content_type: "attachment/xml"
+      rescue Errno::ENOENT => e
+        render :status => :not_implemented, text: "No such the templates for the cat3"
       end
-      xml = exporter.export(HealthDataStandards::CQM::Measure.top_level.where(filter),
-                            generate_header(provider),
-                            effective_date.to_i,
-                            Time.at(effective_start_date.to_i),
-                            end_date,
-                            cat3ver,
-                            provider_filter)
-      # FileUtils.mkdir('results') if !File.exist?('results')
-      # File.open('results/'+fname, 'w') { |f| f.write(xml) }
-      render xml: xml, content_type: "attachment/xml"
     end
 
     api :GET, '/reports/*cat1.zip', "Retrieve a QRDA Category I document"
@@ -385,13 +403,14 @@ module Api
       end
     end
 
-    def generate_header(provider)
+    def generate_header(providers)
       header = Qrda::Header.new(APP_CONFIG["cda_header"])
 
       header.identifier.root = UUID.generate
       header.authors.each { |a| a.time = Time.now }
       header.legal_authenticator.time = Time.now
-      header.performers << provider
+      header.performers = providers
+      header.information_recipient.identifier.extension = @cms_program
 
       header
     end
