@@ -46,6 +46,15 @@ module Api
         Delayed::Job.enqueue(ImportArchiveJob.new({'practice' => practice, 'file' => temp_file,'user' => current_user}),:queue=>:patient_import)
         render status: 200, text: 'Patient file has been uploaded.'
       end
+      
+      api :DELETE, "/patients/deletePatientsFromPractice", "Delete all the patients from a practice (practice_id)"
+      param :practice_id, String, :desc => "Practice ID", :required => true
+      def deletePatientsFromPractice
+         log_admin_api_call LogAction::DELETE, "Removed patients from practice" + params[:practice_id], true
+         Record.where(practice_id: params[:practice_id]).delete
+         render status: 200, text: "Patients removed from practice: " + params[:practice_id]
+      end
+      
 
       api :DELETE, "/admin/patients", "Delete all patients in the database."
       def destroy
