@@ -152,10 +152,10 @@ module Api
     def search
       if ! params[:npi].nil?
         providers = Provider.all({"cda_identifiers" => {"$elemMatch" => {'root' =>"2.16.840.1.113883.4.6", "extension" => /#{params[:npi]}/i }}})
-        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.npi})"} }
+        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.npi})", parent_id: p.parent_id} }
       elsif ! params[:tin].nil?
         providers = Provider.all({"cda_identifiers" => {"$elemMatch" => {'root' =>"2.16.840.1.113883.4.2", "extension" => /#{params[:tin]}/i }}})
-        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.tin})"} }
+        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.tin})", parent_id: p.parent_id} }
       elsif !params[:address].nil?
         # should be able to automate with something like Provider.fields.keys['<addresses_no>'].keys, but
         # the Provider model in no way matches the current db collection, so spell it all out.
@@ -168,7 +168,7 @@ module Api
             {"country":/#{x}/i}
         ]}}}
         providers = Provider.all(query)
-        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.addresses})"} }
+        render json: providers.map {|p| { id: p.id, name: "#{p.full_name} (#{p.addresses})", parent_id: p.parent_id} }
       end
     end
 
