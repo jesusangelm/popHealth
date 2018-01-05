@@ -355,7 +355,7 @@ module Api
     param :denom, /true|false/, :desc => 'Ensure patients meet the denominator for the measure', :required => false
     param :numer, /true|false/, :desc => 'Ensure patients meet the numerator for the measure', :required => false
     param :denex, /true|false/, :desc => 'Ensure patients meet the denominator exclusions for the measure', :required => false
-    param :denexcp, /true|false/, :desc => 'Ensure patients meet the denominator exceptions for the measure', :required => false
+    param :denexcep, /true|false/, :desc => 'Ensure patients meet the denominator exceptions for the measure', :required => false
     param :msrpopl, /true|false/, :desc => 'Ensure patients meet the measure population for the measure', :required => false
     param :antinumerator, /true|false/, :desc => 'Ensure patients are not in the numerator but are in the denominator for the measure', :required => false
     param_group :pagination, Api::PatientsController
