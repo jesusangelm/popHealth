@@ -88,6 +88,7 @@ class Record
         data.medical_record_number = mrn_p
       end
       data.save!
+      Delayed::Worker.logger.info("Record for #{data.first} #{data.last} imported")
       data
     end
   end
