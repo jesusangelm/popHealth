@@ -84,7 +84,16 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
       elsif doc.at_xpath("/cda:ClinicalDocument/cda:templateId[@root='2.16.840.1.113883.10.20.22.1.2']")
         patient_data = HealthDataStandards::Import::CCDA::PatientImporter.instance.parse_ccda(doc)
       elsif doc.at_xpath("/cda:ClinicalDocument/cda:templateId[@root='2.16.840.1.113883.10.20.24.1.2']")
-        patient_data = HealthDataStandards::Import::Cat1::PatientImporter.instance.parse_cat1(doc)
+        begin
+          patient_data = HealthDataStandards::Import::Cat1::PatientImporter.instance.parse_cat1(doc)
+        rescue Exception => e
+          patient_role_element = doc.at_xpath('/cda:ClinicalDocument/cda:recordTarget/cda:patientRole')
+          patient_element = patient_role_element.at_xpath('./cda:patient')
+          first = patient_element.at_xpath('cda:name/cda:given').text.upcase
+          last = patient_element.at_xpath('cda:name/cda:family').text.upcase
+          puts "UNABLE TO IMPORT PATIENT RECORD FOR #{first} #{last}"
+          Delayed::Worker.logger.info("UNABLE TO IMPORT PATIENT RECORD FOR #{first} #{last}")
+        end 
       else
         STDERR.puts("Unable to determinate document template/type of CDA document")
         return {status: 'error', message: "Document templateId does not identify it as a C32 or CCDA", status_code: 400}
