@@ -93,6 +93,7 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
           last = patient_element.at_xpath('cda:name/cda:family').text.upcase
           puts "UNABLE TO IMPORT PATIENT RECORD FOR #{first} #{last}"
           Delayed::Worker.logger.info("UNABLE TO IMPORT PATIENT RECORD FOR #{first} #{last}")
+          Delayed::Worker.logger.info(e.message)
         end 
       else
         STDERR.puts("Unable to determinate document template/type of CDA document")
