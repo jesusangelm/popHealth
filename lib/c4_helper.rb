@@ -64,12 +64,25 @@ module C4Helper
     attr_accessor :exporter
 
     def initialize(measures_in, start_date_in, end_date_in)
-      @exporter = HealthDataStandards::Export::Cat1.new 'r4'
+      @exporter = HealthDataStandards::Export::Cat1.new(get_bundleversion)
       @measures=measures_in
       @start_date=start_date_in
       @end_date=end_date_in
     end
-
+    def get_bundleversion
+      bndl = (b = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first) ? b.version : 'n/a'
+      cat1ver=nil
+      case bndl
+       when /2016/
+         cat1ver='r3_1'
+       when /2017/
+         cat1ver='r4'
+       else
+         cat1ver='r3'
+      end
+      cat1ver
+    end
+    
     def make_name(p)
       "#{p['first']}_#{p['last']}"
     end
@@ -82,7 +95,7 @@ module C4Helper
               patient=patient_hash[:record]
               pmeas=@measures.select { |m| patient_hash[:sub_id].include?(m[:sub_id]) }
               zout.put_next_entry(make_name(patient)+'.xml')
-              zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date, nil, 'r4'))
+              zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date, nil, get_bundleversion))
             end
             zout.close
         end
