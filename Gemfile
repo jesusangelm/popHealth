@@ -13,8 +13,8 @@ gem 'health-data-standards', git: 'https://github.com/OSEHRA/health-data-standar
 gem 'quality-measure-engine', git: 'https://github.com/OSEHRA/quality-measure-engine.git', branch: 'bump_mongoid-carias-adj'
 
 gem "hqmf2js", :git=> "https://github.com/OSEHRA/hqmf2js.git"
-gem 'nokogiri', '~> 1.6.8'
-gem 'rubyzip', '1.2.0'
+gem 'nokogiri', '~> 1.8.1'
+gem 'rubyzip', '1.2.1'
 gem 'net-ssh', '2.9.1'
 gem 'hquery-patient-api', '1.0.4'
 gem 'spreadsheet', '1.0.3'
