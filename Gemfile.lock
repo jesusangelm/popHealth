@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/OSEHRA/health-data-standards.git
-  revision: e2cd0d7f329072830be073e8b81d2829fb92ca11
+  revision: 28f1890742bb284b03c762a5987f950356200708
   branch: mongoid5R2
   specs:
     health-data-standards (3.6.1)
@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: https://github.com/OSEHRA/quality-measure-engine.git
-  revision: 11c396bff3c3729a6766e126417d132b46843d9c
+  revision: f20894bb05e17d4b791f1206420707b505a24f58
   branch: bump_mongoid-carias-adj
   specs:
     quality-measure-engine (3.1.2)
