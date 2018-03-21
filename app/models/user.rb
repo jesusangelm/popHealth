@@ -10,7 +10,7 @@ class User
   before_save :denullify_arrays
   before_create :set_defaults
 
-  DEFAULT_EFFECTIVE_DATE = Time.gm(2015, 12, 31)
+  DEFAULT_EFFECTIVE_DATE = Time.gm(2016, 12, 31)
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :authentication_keys => [:username]
@@ -58,7 +58,7 @@ class User
   field :tin, :type => String
   field :agree_license, type: Boolean
   field :effective_date, type: Integer, default: DEFAULT_EFFECTIVE_DATE.to_i
-  field :effective_start_date, type: Integer, default: (DEFAULT_EFFECTIVE_DATE.years_ago(1)).to_i
+  field :effective_start_date, type: Integer, default: (DEFAULT_EFFECTIVE_DATE.beginning_of_year).to_i
   field :admin, type: Boolean
   field :approved, type: Boolean
   field :staff_role, type: Boolean
