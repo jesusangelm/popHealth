@@ -31,7 +31,7 @@ module Api
       begin
         log_api_call LogAction::EXPORT, "QRDA Category 3 report"
         measure_ids = params[:measure_ids] ||current_user.preferences["selected_measure_ids"]
-        program = !params[:cms_program] == nil ? params[:cms_program].upcase : APP_CONFIG['qrda_cms_program'].upcase
+        program = !(params[:cms_program] == nil) ? params[:cms_program].upcase : APP_CONFIG['qrda_cms_program'].upcase
         practice = Practice.where({'provider_id' => params[:provider_id]}).first
 
         # C4-mods : should we flag them so they can be conditional?
