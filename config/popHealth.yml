@@ -47,7 +47,8 @@ defaults: &defaults
     # VALUES:
     # CMS REPORTING PROGRAM (DEFAULT): NONE
     # MIPS INDIVIDUAL: MIPS
-    # FOR IQR : HQR_EHR_IQR
+    # FOR EH PROGRAM : EH_PROGRAM
+    # Specify the EH PROGRAM Code in Information Recipient Extension 
   qrda_cms_program: NONE
 
   # Specify the types of events that you would like to record in the log
