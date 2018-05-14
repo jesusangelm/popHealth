@@ -92,9 +92,8 @@ module C4Helper
       header = Qrda::Header.new(APP_CONFIG["cda_header"])
       extn = nil  
       program = APP_CONFIG['qrda_cms_program'].upcase
-      if program == "HQR_EHR_IQR"
-        header.information_recipient.identifier.extension = program
-        pid= patient.provider_performances[0].provider_id
+      if program == "EH_PROGRAM"
+         pid= patient.provider_performances[0].provider_id
         provider = Provider.where("id" => pid).first
         provider.cda_identifiers.each do |prcda|
           if prcda.root == "2.16.840.1.113883.4.336"
