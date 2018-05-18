@@ -86,7 +86,29 @@ module C4Helper
     def make_name(p)
       "#{p['first']}_#{p['last']}"
     end
-
+    
+    #generating header information required for IQR Program
+    def headergenerater(patient)
+      header = Qrda::Header.new(APP_CONFIG["cda_header"])
+      extn = nil  
+      program = APP_CONFIG['qrda_cms_program'].upcase
+      if program == "EH_PROGRAM"
+         pid= patient.provider_performances[0].provider_id
+        provider = Provider.where("id" => pid).first
+        provider.cda_identifiers.each do |prcda|
+          if prcda.root == "2.16.840.1.113883.4.336"
+            extn = prcda.extension
+          end
+        end
+        if !extn.nil?
+          header.custodian.organization.ids.each {|a| a.extension = extn}
+        end
+      else
+        header=nil
+      end
+      header
+    end
+    
     def pluck(outfilepath, patients)
       #, Zip::File::CREATE
       if patients && patients.length > 0
@@ -95,7 +117,12 @@ module C4Helper
               patient=patient_hash[:record]
               pmeas=@measures.select { |m| patient_hash[:sub_id].include?(m[:sub_id]) }
               zout.put_next_entry(make_name(patient)+'.xml')
-              zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date, nil, get_bundleversion))
+              headerforiqr = headergenerater(patient)
+              if headerforiqr.nil?
+                zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date,nil, get_bundleversion))
+              else
+                zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date, headerforiqr, get_bundleversion))
+              end
             end
             zout.close
         end

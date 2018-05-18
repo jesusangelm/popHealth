@@ -57,6 +57,8 @@ module Api
               when 'MIPS'
                 cat3ver='r2_1/mips'
                 @cms_program = practice ? 'MIPS_GROUP' : 'MIPS_INDIV'
+              when 'EH_PROGRAM'
+                cat3ver='r2_1'
               when 'NONE'
                 cat3ver='r2_1'
             end
