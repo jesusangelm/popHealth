@@ -85,6 +85,12 @@ defaults: &defaults
         - :root: authors_organization_root
           :extension: authors_organization_ext
         :name: ''
+    # Replace information recipient extension with the program code for CMS programs 
+     # Hospital Quality Reporting for the EHR Incentive Program: HQR_EHR
+     # Hospital Quality Reporting for the EHR Incentive Program and the IQR Program: HQR_EHR_IQR
+     # Hospital Quality Reporting for the Inpatient Quality Reporting Program: HQR_IQR
+     # Hospital Quality Reporting for Inpatient Quality Reporting Program voluntary submissions: HQR_IQR_VOL
+     # Hospital Quality Reporting for Episode Payment Model voluntary submissions: HQR_EPM_VOL
     :information_recipient:
       :identifier:
         :root:
