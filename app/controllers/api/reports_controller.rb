@@ -55,8 +55,11 @@ module Api
           when /201[67]/
             case program
               when 'MIPS'
-                cat3ver='r2_1/mips'
+                cat3ver='r2_1/ep'
                 @cms_program = practice ? 'MIPS_GROUP' : 'MIPS_INDIV'
+              when 'CPCPLUS'
+                cat3ver='r2_1/ep'
+                @cms_program = program
               when 'EH_PROGRAM'
                 cat3ver='r2_1'
               when 'NONE'

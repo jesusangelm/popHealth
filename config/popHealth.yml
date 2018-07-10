@@ -48,6 +48,7 @@ defaults: &defaults
     # VALUES:
     # CMS REPORTING PROGRAM (DEFAULT): NONE
     # MIPS INDIVIDUAL: MIPS
+    # CPC +: CPCPLUS
     # FOR EH PROGRAM : EH_PROGRAM
     # Specify the EH PROGRAM Code in Information Recipient Extension 
   qrda_cms_program: NONE
@@ -123,6 +124,12 @@ defaults: &defaults
         - :root: legal_authenticator_org_root
           :extension: legal_authenticator_org_ext
         :name: ''
+    :participant:
+      :identifier:
+        :root:
+        :extension: 'T2OR234'
+      :addresses: []
+
 
 development:
   <<: *defaults
