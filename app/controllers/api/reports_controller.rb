@@ -369,7 +369,8 @@ module Api
 
     def cat1
       log_api_call LogAction::EXPORT, "QRDA Category 1 report", true
-      exporter = HealthDataStandards::Export::Cat1.new 'r3_1'
+      c4h = C4Helper::Cat1ZipFilter.new(nil, nil, nil)
+      exporter = HealthDataStandards::Export::Cat1.new c4h.get_bundleversion
       patient = Record.find(params[:id])
       authorize! :read, patient
       measure_ids = params["measure_ids"].split(',')
