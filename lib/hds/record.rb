@@ -15,33 +15,31 @@ class Record
   scope :provider_performance_between, ->(effective_date) { where("provider_performances.start_date" => {"$lt" => effective_date}).and('$or' => [{'provider_performances.end_date' => nil}, 'provider_performances.end_date' => {'$gt' => effective_date}]) }
     
   Valid_Sections = [:allergies, :conditions, :encounters, :immunizations, :medications, :procedures, :results, :vital_signs, :socialhistories, :communications, :assessments]
-    
+  
   def language_names
     lang_codes = (languages.nil?) ? [] : languages.map { |l| l.gsub(/\-[A-Z]*$/, "") }
     Language.ordered.by_code(lang_codes).map(&:name)
   end
 
   def cache_results(params = {})
-    query = {"value.medical_record_id" => self.medical_record_number }
-    query["value.effective_date"]= params["effective_date"] if params["effective_date"]
-    query["value.effective_start_date"]= params["effective_start_date"] if params["effective_start_date"]
-    query["value.measure_id"]= params["measure_id"] if params["measure_id"]
-    query["value.sub_id"]= params["sub_id"] if params["sub_id"]
-    HealthDataStandards::CQM::PatientCache.where(query)
+     
   end
   
   def self.update_or_create(data, practice_id=nil)
     mrn = data.medical_record_number
     mrn_p = (practice_id)? mrn + "_pid_" + practice_id : ''
     if practice_id
-      existing = Record.where(medical_record_number: mrn_p).first
+      #existing = Record.where(medical_record_number: mrn_p).first
+      existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn_p).first
     else
-      existing = Record.where(medical_record_number: mrn).first
+      #existing = Record.where(medical_record_number: mrn).first
+      existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn).first
     end
 
     if existing
-      existing.update_attributes!(data.attributes.except('_id', 'medical_record_number', 'practice_id'))
+      existing.update_attributes!(data.attributes.except('_id', 'extendedData.medical_record_number', 'extendedData.practice_id'))
       
+=begin      
       # updates
       Record::Valid_Sections.each do |section|        
         if ! data.send(section).blank?
@@ -82,13 +80,14 @@ class Record
         end
       end
       existing
+=end
     else
       if practice_id 
         data.practice = Practice.find(practice_id)
         data.medical_record_number = mrn_p
       end
-      data.save!
-      Delayed::Worker.logger.info("Record for #{data.first} #{data.last} imported")
+      #data.save!
+      #Delayed::Worker.logger.info("Record for #{data.first} #{data.last} imported")
       data
     end
   end

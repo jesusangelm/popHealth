@@ -12,7 +12,8 @@ class Thorax.Models.Precondition extends Thorax.Model
     obj
   reference: ->
     id = @get('reference')
-    @submeasure().get('data_criteria').get(id)
+    @submeasure().get('hqmf_document').data_criteria
+    #@submeasure().get('data_criteria').get(id)
   parse: (attrs) ->
     if attrs.preconditions?
       attrs.preconditions = new Thorax.Collections.Preconditions attrs.preconditions, parent: this, parse: true

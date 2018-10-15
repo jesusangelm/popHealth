@@ -107,7 +107,7 @@ class Thorax.Views.MeasureView extends Thorax.LayoutView
       @submeasureView.setModel @submeasure
       @sidebarView.changeSubmeasure submeasure
       view = @getView()
-      url = "measures/#{submeasure.collection.parent.id}/#{submeasure.id}/providers/#{@provider_id}"
+      url = "measures/#{submeasure.collection.parent.get('id')}/#{submeasure.id}/providers/#{@provider_id}"
       if @logicIsActive()
         view.setModel @submeasure, render: true
       else

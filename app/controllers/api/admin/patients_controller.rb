@@ -20,7 +20,7 @@ module Api
       def count
         log_admin_api_call LogAction::VIEW, "Get patient count"
         json = {}
-        json['patient_count'] = Record.count
+        json['patient_count'] = QDM::Patient.count
         render :json => json
       end
 
@@ -51,7 +51,7 @@ module Api
       param :practice_id, String, :desc => "Practice ID", :required => true
       def deletePatientsFromPractice
          log_admin_api_call LogAction::DELETE, "Removed patients from practice" + params[:practice_id], true
-         Record.where(practice_id: params[:practice_id]).delete
+         QDM::Patient.where('extendedData.practice_id' => params[:practice_id]).delete
          render status: 200, text: "Patients removed from practice: " + params[:practice_id]
       end
       
@@ -59,7 +59,7 @@ module Api
       api :DELETE, "/admin/patients", "Delete all patients in the database."
       def destroy
         log_admin_api_call LogAction::DELETE, "Delete all patients", true
-        Record.delete_all
+        QDM::Patient.delete_all
         render status: 200, text: 'Patient records successfully removed from database.'
       end
 

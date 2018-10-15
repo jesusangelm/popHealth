@@ -1,5 +1,7 @@
-require 'cypress/record_filter.rb'
+require 'cypress/patient_filter.rb'
+require 'cypress/expected_results_calculator.rb'
 require 'c4_helper.rb'
+require 'js_ecqm_calc.rb'
 
 module Api
   class QueriesController < ApplicationController
@@ -103,7 +105,6 @@ module Api
 
     def show
       @qr = QME::QualityReport.find(params[:id])
-
       if current_user.preferences.show_aggregate_result && !@qr.aggregate_result && !APP_CONFIG['use_opml_structure']
         cv = @qr.measure.continuous_variable
         #aqr = QME::QualityReport.where(measure_id: @qr.measure_id, sub_id: @qr.sub_id, 'filters.providers' => [Provider.root._id.to_s], effective_date: @qr.effective_date).first
@@ -140,16 +141,24 @@ module Api
     def create
       options = {}
       prefilter = {}
+      @pids=[]
+      @mids=[]
+      @patients=[]
+      @msrs = []
+      @measures = {}
+      sub_ids ={}
+     if params[:providers]
       options[:filters] = build_filter
-
       authorize_providers
       end_date = params[:effective_date]
       start_date = params[:effective_start_date]
-
       end_date = Time.at(end_date.to_i) if end_date.is_a?(String)
       start_date = Time.at(start_date.to_i) if start_date.is_a?(String)
-
       start_date = end_date.years_ago(1) if start_date.nil?
+      
+      @msr = HealthDataStandards::CQM::Measure.where(hqmf_id: params[:measure_id], sub_id: params[:sub_id]).first
+       @mids << @msr._id
+       @msrs << @msr
 
       rp = ReportingPeriod.where(start_date: start_date, end_date: end_date).first_or_create
       rp.save!
@@ -157,42 +166,43 @@ module Api
       options[:start_date] = start_date
       options[:effective_date] = end_date
       options[:test_id] = rp._id
-      options['prefilter'] = build_mr_prefilter if APP_CONFIG['use_map_reduce_prefilter']
-      prefilter = build_mr_prefilter_qsi(params[:providers]) if APP_CONFIG['use_map_reduce_prefilter']
-
-      qr = QME::QualityReport.find_or_create(params[:measure_id],
-                                             params[:sub_id], options)
-      if !qr.calculated?
-        #qr.calculate({"oid_dictionary" => OidHelper.generate_oid_dictionary(qr.measure),
-        #              "enable_rationale" => APP_CONFIG['enable_map_reduce_rationale'] || false,
-        #              "enable_logging" => APP_CONFIG['enable_map_reduce_logging'] || false}, true)
-        qr.calculate({"oid_dictionary" => OidHelper.generate_oid_dictionary(qr.measure),
-                      "enable_rationale" => APP_CONFIG['enable_map_reduce_rationale'] || false,
-                      "enable_logging" => APP_CONFIG['enable_map_reduce_logging'] || false,
-                      "prefilter" => prefilter}, true)
-      end
-
-      if current_user.preferences.show_aggregate_result && !APP_CONFIG['use_opml_structure']
-        agg_options = options.clone
-        #agg_options[:filters][:providers] = [Provider.root._id.to_s]
-        agg_options[:filters][:providers] = [get_parent_provider_qsi(params[:providers][0])]
-        prefilter = build_mr_prefilter_qsi(agg_options[:filters][:providers]) if APP_CONFIG['use_map_reduce_prefilter']
-        aqr = QME::QualityReport.find_or_create(params[:measure_id],
-                                                params[:sub_id], agg_options)
-        if !aqr.calculated?
-          #aqr.calculate({"oid_dictionary" => OidHelper.generate_oid_dictionary(aqr.measure),
-          #               "enable_rationale" => APP_CONFIG['enable_map_reduce_rationale'] || false,
-          #               "enable_logging" => APP_CONFIG['enable_map_reduce_logging'] || false, true)
-          qr.destroy_patient_results
-          aqr.calculate({"oid_dictionary" => OidHelper.generate_oid_dictionary(aqr.measure),
-                         "enable_rationale" => APP_CONFIG['enable_map_reduce_rationale'] || false,
-                         "enable_logging" => APP_CONFIG['enable_map_reduce_logging'] || false,
-                         "prefilter" => prefilter}, true)
+      begin
+        #, "filters.providers" => {'$in': params[:providers]}
+        qc = QME::QualityReport.where('measure_id' => params[:measure_id], 'effective_date' => options[:effective_date], 'sub_id' => params[:sub_id]).first
+        if qc
+          puts "calculation is already available in cache"
+          render json: qc
+        else
+          providers = params[:providers]
+          providers.each do |prov|
+            QDM::Patient.all.each do |p|
+              if(prov == JSON.parse(p.extendedData['provider_performances']).first['provider_id'].to_s)
+                @pids << p._id.to_s
+                @patients << p
+              end
+            end
+          end
+          calc_job = Cypress::JsEcqmCalc.new('correlation_id': options[:test_id],'effective_date': Time.at(options[:effective_date]).in_time_zone.to_formatted_s(:number))
+          response = calc_job.sync_job(@pids, @mids)
+          if response['status'] == 'success'
+            calc_job.stop
+            sleep(2)
+            @msrs.each do |msr|
+              QME::ManualExclusion.apply_manual_exclusions(msr._id,msr.sub_id)
+            end
+            erc = Cypress::ExpectedResultsCalculator.new(@patients,options[:test_id],options[:effective_date],options[:filters])
+            @results = erc.aggregate_results_for_measures(@msrs)
+          end
+            log_api_call LogAction::ADD, "Create a clinical quality calculation"
+            render json: @results
         end
+        rescue Exception => e
+          puts e.message
+          puts e.backtrace.inspect
+        end
+      else
+        return false
       end
-
-      log_api_call LogAction::ADD, "Create a clinical quality calculation"
-      render json: qr
     end
 
     api :DELETE, '/queries/:id', "Remove clinical quality measure calculation"
@@ -201,7 +211,6 @@ module Api
     def destroy
       qr = QME::QualityReport.find(params[:id])
       authorize! :delete, qr
-      #qr.destroy_patient_results
       qr.destroy
       log_api_call LogAction::DELETE, "Remove clinical quality calculation"
       render :status => 204, :text => ""
@@ -214,13 +223,10 @@ module Api
       prefilter = {}
       qr = QME::QualityReport.find(params[:id])
       authorize! :recalculate, qr
-      prefilter = build_mr_prefilter_qsi(qr.filters['providers']) if APP_CONFIG['use_map_reduce_prefilter']
-      #qr.destroy_patient_results
+      #prefilter = build_mr_prefilter_qsi(qr.filters['providers']) if APP_CONFIG['use_map_reduce_prefilter']
       #qr.calculate({"oid_dictionary" => OidHelper.generate_oid_dictionary(qr.measure_id),
-      #              'recalculate' => true}, true)
-      qr.calculate({"oid_dictionary" => OidHelper.generate_oid_dictionary(qr.measure_id),
-                    'recalculate' => true,
-                    "prefilter" => prefilter}, true)
+      #              'recalculate' => true,
+      #              "prefilter" => prefilter}, true)
       log_api_call LogAction::UPDATE, "Force a clinical quality calculation"
       render json: qr
     end
@@ -232,8 +238,8 @@ module Api
       namekey=[]
       filters={}
       bundle = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first
-      pcache = PatientCache.first
-      effective_date = pcache ? pcache['value']['effective_date'] : bundle.effective_date
+      pcache = QDM::IndividualResult.first
+      effective_date = pcache ? pcache['extendedData']['effective_date'].to_time.to_i : bundle.effective_date
       pcache = nil
       filter_options= {:effective_date => effective_date, :bundle_id => bundle._id}
       #authorize! :recalculate, qc
@@ -277,13 +283,13 @@ module Api
       # todo: Date.new should be replaced by meaningful
       # todo: :bundle_id in options Is there only ever one bundle
       mrns = []
-      records = Cypress::RecordFilter.filter(Record, filters, filter_options)
+      records = Cypress::PatientFilter.filter(QDM::Patient, filters, filter_options)
       numrecs = records.count rescue nil
       unless numrecs.nil?
         reset_patient_cache
         records.each do |r|
-          if PatientCache.where("value.medical_record_id" => r['medical_record_number']).exists?
-            mrns.push(r['medical_record_number'])
+          if QDM::IndividualResult.where("extendedData.medical_record_number" => r['extendedData.medical_record_number']).exists?
+            mrns.push(r['extendedData.medical_record_number'])
           end
         end
         # At this point the mrns tell us what cat1's to keep and what cat3's to generate
@@ -294,14 +300,15 @@ module Api
         current_user.save
         #zipfilepath=filepath+'.zip'
         #QueriesController.generate_qrda1_zip(zipfilepath, mrns, current_user)
-        PatientCache.not_in("value.medical_record_id" => mrns).each { |pc|
-          val = pc['value']
-          ManualExclusion.find_or_create_by(:measure_id => val['measure_id'], :sub_id => val['sub_id'],
-                                            :medical_record_id => val['medical_record_id'],
+        QDM::IndividualResult.not_in("extendedData.medical_record_number" => mrns).each { |pc|
+          val = pc['extendedData']
+          ManualExclusion.find_or_create_by(:measure_id => pc['measure_id'], :sub_id => pc['sub_id'],
+                                            :medical_record_id => val['medical_record_number'],
                                             :rationale => namekey, :user => current_user['_id'])
         }
         # new let page recalc
-        PatientCache.delete_all
+        QDM::IndividualResult.delete_all
+        
         # force recalculate has no effect if the patients are cached !!!!!!!!!!!!!!
         QME::QualityReport.where({measure_id: params[:id]}).each do |qc|
           # updating nested attributes in Mongoid appears lame
@@ -318,10 +325,15 @@ module Api
     param :id, String, :desc => 'The id of the quality measure calculation', :required => true
 
     def clearfilters
+      begin
       reset_patient_cache
       delete_patient_cache
       current_user.preferences['c4filters']=nil
       current_user.save
+      rescue Exception => e
+          puts e.message
+          puts e.backtrace.inspect
+      end 
       redirect_to '/#providers/'+params[:default_provider_id]
     end
 
@@ -329,22 +341,27 @@ module Api
       mrns=[]
       measures=[]
       subs=[]
-      pcoll=$mongo_client.database.collection('patient_cache')
-      pcoll.update_many({}, {'$set': {'value.manual_exclusion': nil}})
+      pcoll=$mongo_client.database.collection('qdm_individual_results')
+      pcoll.update_many({}, {'$set': {'extendedData.manual_exclusion': nil}})
       pcoll.find().each do |pc|
-        val=pc['value']
-        mrns.push(val['medical_record_id'])
-        measures.push(val['measure_id']) unless measures.include?(val['measure_id'])
-        subs.push(val['sub_id']) unless subs.include?(val['sub_id'])
+        val=pc['extendedData']
+        mrns.push(val['medical_record_number'])
+        measures.push(pc['measure_id'].to_s) unless measures.include?(pc['measure_id'])
+        subs.push(pc['sub_id']) unless subs.include?(pc['sub_id'])
       end
+      if !subs.empty? && subs.length == 0
       $mongo_client.database.collection('manual_exclusions').delete_many(
           {'measure_id': {'$in': measures}, 'sub_id': {'$in': subs}, 'medical_record_id': {'$in': mrns}})
+      else
+        $mongo_client.database.collection('manual_exclusions').delete_many(
+          {'measure_id': {'$in': measures}, 'medical_record_id': {'$in': mrns}})
+      end
     end
 
     def delete_patient_cache
       log_admin_controller_call LogAction::DELETE, "Remove caches"
       HealthDataStandards::CQM::QueryCache.delete_all
-      PatientCache.delete_all
+      QDM::IndividualResult.delete_all
       Mongoid.default_client["rollup_buffer"].drop()
     end
 
@@ -371,8 +388,9 @@ module Api
       authorize! :read, qr
       # this returns a criteria object so we can filter it additionally as needed
       results = qr.patient_results
+      #.only('_id', 'extendedData.medical_record_number', 'extendedData.first', 'extendedData.last', 'extendedData.DOB', 'extendedData.gender', 'patient_id')
       log_api_call LogAction::VIEW, "Get patient results for measure calculation", true
-      render json: paginate(patient_results_api_query_url(qr), results.where(build_patient_filter).only('_id', 'value.medical_record_id', 'value.first', 'value.last', 'value.birthdate', 'value.gender', 'value.patient_id'))
+      render json: paginate(patient_results_api_query_url(qr), results.where(build_patient_filter))
     end
 
     def patients
@@ -380,9 +398,9 @@ module Api
       authorize! :read, qr
       # this returns a criteria object so we can filter it additionally as needed
       results = qr.patient_results
-      ids = paginate(patients_api_query_url(qr), results.where(build_patient_filter).order_by([:last.asc, :first.asc])).collect { |r| r["value.medical_record_id"] }
+      ids = paginate(patients_api_query_url(qr), results.where(build_patient_filter).order_by([:last.asc, :first.asc])).collect { |r| r["extendedData.medical_record_number"] }
       log_api_call LogAction::VIEW, "Get patients for measure calculation", true
-      render :json => Record.where({:medical_record_number.in => ids})
+      render :json => QDM::Patient.where({:'extendedData.medical_record_number'.in => ids})
     end
 
 
@@ -431,21 +449,25 @@ module Api
 
     def build_patient_filter
       patient_filter = {}
-      patient_filter["value.IPP"]= {"$gt" => 0} if params[:ipp] == "true"
-      patient_filter["value.DENOM"]= {"$gt" => 0} if params[:denom] == "true"
-      patient_filter["value.NUMER"]= {"$gt" => 0} if params[:numer] == "true"
-      patient_filter["value.DENEX"]= {"$gt" => 0} if params[:denex] == "true"
-      patient_filter["value.DENEXCEP"]= {"$gt" => 0} if params[:denexcep] == "true"
-      patient_filter["value.MSRPOPL"]= {"$gt" => 0} if params[:msrpopl] == "true"
+      patient_filter["IPP"]= {"$gt" => 0} if params[:ipp] == "true"
+      patient_filter["DENOM"]= {"$gt" => 0} if params[:denom] == "true"
+      patient_filter["NUMER"]= {"$gt" => 0} if params[:numer] == "true"
+      patient_filter["DENEX"]= {"$gt" => 0} if params[:denex] == "true"
+      patient_filter["DENEXCEP"]= {"$gt" => 0} if params[:denexcep] == "true"
+      patient_filter["MSRPOPL"]= {"$gt" => 0} if params[:msrpopl] == "true"
       # jb addition
-      patient_filter["value.manual_exclusion"] = {"$exists" => 0}
-      patient_filter["value.antinumerator"]= {"$gt" => 0} if params[:antinumerator] == "true"
-      patient_filter["value.provider_performances.provider_id"]= BSON::ObjectId.from_string(params[:provider_id]) if params[:provider_id]
+      #patient_filter["value.manual_exclusion"] = {"$exists" => 0}
+      #patient_filter["value.antinumerator"]= {"$gt" => 0} if params[:antinumerator] == "true"
+      #patient_filter["value.provider_performances.provider_id"]= BSON::ObjectId.from_string(params[:provider_id]) if params[:provider_id]
       patient_filter
     end
 
     def collect_provider_id
       params[:providers] || Provider.where({:npi.in => params[:npis] || []}).to_a
     end
+
+    def get_patients(provider)
+    end
+
   end
 end

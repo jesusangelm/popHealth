@@ -5,7 +5,7 @@ module C4Helper
     attr_accessor :end_time
     # note bad redundancy: have to declare version on init
     # (don't know if call on export matters at all -- should be one or the other)
-    CAT1EXPORTER = HealthDataStandards::Export::Cat1.new('r4')
+    CAT1EXPORTER = HealthDataStandards::Export::Cat1.new('r5')
 
     def initialize
       # define @measures, @start_time @end_time from query_cache  use pushnew? with measures
@@ -22,7 +22,7 @@ module C4Helper
       # don't know about this one; try both ways
       cms_compatible = true # if patient.product_test && patient.product_test.product.c3_test
       # qrda version is hard coded right now!!!
-      CAT1EXPORTER.export(patient, @measures, @start_time, @end_time, nil, 'r4', #patient.bundle.qrda_version,
+      CAT1EXPORTER.export(patient, @measures, @start_time, @end_time, nil, 'r5', #patient.bundle.qrda_version,
                           cms_compatible)
     end
 
@@ -64,23 +64,10 @@ module C4Helper
     attr_accessor :exporter
 
     def initialize(measures_in, start_date_in, end_date_in)
-      @exporter = HealthDataStandards::Export::Cat1.new(get_bundleversion)
+      @exporter = HealthDataStandards::Export::Cat1.new('r5')
       @measures=measures_in
       @start_date=start_date_in
       @end_date=end_date_in
-    end
-    def get_bundleversion
-      bndl = (b = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first) ? b.version : 'n/a'
-      cat1ver=nil
-      case bndl
-       when /2016/
-         cat1ver='r3_1'
-       when /2017/
-         cat1ver='r4'
-       else
-         cat1ver='r3'
-      end
-      cat1ver
     end
     
     def make_name(p)
@@ -117,11 +104,11 @@ module C4Helper
               patient=patient_hash[:record]
               pmeas=@measures.select { |m| patient_hash[:sub_id].include?(m[:sub_id]) }
               zout.put_next_entry(make_name(patient)+'.xml')
-              headerforiqr = headergenerater(patient)
-              if headerforiqr.nil?
-                zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date,nil, get_bundleversion))
-              else
-                zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date, headerforiqr, get_bundleversion))
+              begin
+                zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date,nil, 'r5'))
+              rescue Exception => e
+                puts e.message
+                puts e.backtrace.inspect
               end
             end
             zout.close

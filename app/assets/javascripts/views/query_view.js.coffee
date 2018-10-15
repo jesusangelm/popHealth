@@ -29,7 +29,7 @@ class QueryButtonsView extends Thorax.View
         else
           @timeout ?= setInterval =>
             @model.fetch()
-          , 3000
+          , 30000
   initialize: ->
     @currentPopulation ?= 'IPP'
   context: ->

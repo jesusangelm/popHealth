@@ -10,7 +10,7 @@ class User
   before_save :denullify_arrays
   before_create :set_defaults
 
-  DEFAULT_EFFECTIVE_DATE = Time.gm(2016, 12, 31)
+  DEFAULT_EFFECTIVE_DATE = Time.gm(2019, 12, 31)
 
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :authentication_keys => [:username]

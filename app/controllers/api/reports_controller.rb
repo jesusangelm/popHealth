@@ -48,29 +48,11 @@ module Api
         fname=fname+'qrda_cat3.xml'
         filter = measure_ids=="all" ? {} : {:hqmf_id.in => measure_ids}
         bndl = (b = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first) ? b.version : 'n/a'
-        cat3ver=nil
-        case bndl
-          when /2015/ =~ bndl
-            cat3ver='r1_1'
-          when /201[67]/
-            case program
-              when 'MIPS'
-                cat3ver='r2_1/ep'
-                @cms_program = practice ? 'MIPS_GROUP' : 'MIPS_INDIV'
-              when 'CPCPLUS'
-                cat3ver='r2_1/ep'
-                @cms_program = program
-              when 'EH_PROGRAM'
-                cat3ver='r2_1'
-              when 'NONE'
-                cat3ver='r2_1'
-            end
-          else
-            cat3ver='r1'
-        end
+        cat3ver='r2_1'
+        
         exporter = HealthDataStandards::Export::Cat3.new(cat3ver)
-        effective_date = params["effective_date"] || current_user.effective_date || Time.gm(2015, 12, 31)
-        effective_start_date = params["effective_start_date"] || current_user.effective_start_date || Time.gm(2014, 12, 31)
+        effective_date = params["effective_date"] || current_user.effective_date || Time.gm(2019, 12, 31)
+        effective_start_date = params["effective_start_date"] || current_user.effective_start_date || Time.gm(2018, 12, 31)
         end_date = Time.at(effective_date.to_i)
         providers = []
         provider_filter = nil
@@ -88,8 +70,7 @@ module Api
                               effective_date.to_i,
                               Time.at(effective_start_date.to_i),
                               end_date,
-                              cat3ver,
-                              provider_filter)
+                              cat3ver)
         # FileUtils.mkdir('results') if !File.exist?('results')
         # File.open('results/'+fname, 'w') { |f| f.write(xml) }
         render xml: xml, content_type: "attachment/xml"
@@ -111,6 +92,7 @@ module Api
 
     def cat1_zip
       log_api_call LogAction::EXPORT, "QRDA Category 1 report", true
+      qdm_patient_converter = CQM::Converter::QDMPatient.new
       FileUtils.mkdir('results') if !File.exist?('results')
       filepath='results/' + params[:cmsid] +'_'
       filepath += (current_user.preferences['c4filters'] or []).join('_')
@@ -118,22 +100,27 @@ module Api
       file = File.new(filepath, 'w')
       measures=HealthDataStandards::CQM::Measure.where(:cms_id => params[:cmsid]).to_a
       patients=[]
-      PatientCache.where('value.measure_id' => measures[0]['hqmf_id'],
-                         'value.provider_performances.provider_id' => BSON::ObjectId(params[:provider_id])).each do |pc|
-        if !pc['value.manual_exclusion']
-          p = Record.find(pc['value.patient_id'])
+      QDM::IndividualResult.where('extendedData.hqmf_id' => measures[0]['hqmf_id']).each do |pc|
+        if !pc['extendedData.manual_exclusion']
+          p = QDM::Patient.find(pc['patient_id'])
           authorize! :read, p
+          begin
+          @hds_record = qdm_patient_converter.to_hds(p)
+          rescue Exception => e
+                puts e.message
+                #puts e.backtrace.inspect
+          end
           patients.each do |elt|
-            if elt[:mrn] == p[:medical_record_number]
-              elt[:sub_id] = elt[:sub_id].push(pc['value.sub_id']).uniq
-              p=nil
+            if elt[:mrn] == @hds_record[:medical_record_number]
+              elt[:sub_id] = elt[:sub_id].push(pc['extendedData.sub_id']).uniq
+              @hds_record=nil
               break
             end
-          end # else
-          patients.push({:mrn => p[:medical_record_number], :record => p, :sub_id => [pc['value.sub_id']]}) if p.present?
+          end
+          patients.push({:mrn => @hds_record[:medical_record_number], :record => @hds_record, :sub_id => [pc['extendedData.sub_id']]}) if @hds_record.present?
         end
       end
-      end_date = params["effective_date"] || current_user.effective_date || Time.gm(2015, 12, 31)
+      end_date = params["effective_date"] || current_user.effective_date || Time.gm(2019, 12, 31)
       start_date = params["effective_start_date"] || current_user.effective_start_date || end_date.years_ago(1)
       c4h = C4Helper::Cat1ZipFilter.new(measures, start_date, end_date)
       c4h.pluck(filepath, patients)
@@ -162,7 +149,6 @@ module Api
       qr = QME::QualityReport.where(:effective_date => params[:effective_date].to_i, :measure_id => params[:id], :sub_id => params[:sub_id], "filters.providers" => params[:provider_id])
 
       authorize! :read, Provider.find(params[:provider_id])
-
       records = (qr.count > 0) ? qr.first.patient_results : []
 
       book = Spreadsheet::Workbook.new
@@ -192,12 +178,16 @@ module Api
       sheet.row(r).default_format = format
       # populate rows
       r+=1
+
       records.each do |record|
-        value = record.value
-        authorize! :read, Record.find_by(medical_record_number: value[:medical_record_id])
-        if value["#{type}"] == 1
-          sheet.row(r).push(value[:medical_record_id], value[:first], value[:last], value[:gender], Time.at(value[:birthdate]).strftime("%D"))
-          r +=1
+        value = record.extendedData
+        authorize! :read, QDM::Patient.find_by('extendedData.medical_record_number': value[:medical_record_number])
+        #Todo makesure IPP =1 in js ecqm engine
+        if record["#{type}"]
+          if record["#{type}"] >= 1
+            sheet.row(r).push(value[:medical_record_number], value[:first][0], value[:last], value[:gender], Time.new(value[:DOB][:year],value[:DOB][:month],value[:DOB][:day]).strftime("%D"))
+            r +=1
+          end
         end
       end
 
@@ -369,8 +359,7 @@ module Api
 
     def cat1
       log_api_call LogAction::EXPORT, "QRDA Category 1 report", true
-      c4h = C4Helper::Cat1ZipFilter.new(nil, nil, nil)
-      exporter = HealthDataStandards::Export::Cat1.new c4h.get_bundleversion
+      exporter = HealthDataStandards::Export::Cat1.new 'r3_1'
       patient = Record.find(params[:id])
       authorize! :read, patient
       measure_ids = params["measure_ids"].split(',')
@@ -418,7 +407,7 @@ module Api
       header.authors.each { |a| a.time = Time.now }
       header.legal_authenticator.time = Time.now
       header.performers = providers
-      header.information_recipient.identifier.extension = @cms_program
+      #header.information_recipient.identifier.extension = @cms_program
 
       header
     end

@@ -27,8 +27,8 @@ defaults: &defaults
   enable_map_reduce_logging: false
   #use practice-based system instead of provider opml hierarchy
   use_opml_structure: false
-  # Number of Threads for Patient Import. Note, do not change until multi-threading issues are resolved
-  patient_import_threads: 1
+  # Number of Threads for Patient Import
+  patient_import_threads: 4
   # use workaround for new measure bundle 2.6.0 to get measure results
   ignore_provider_performance_dates: true
 
@@ -93,10 +93,10 @@ defaults: &defaults
      # Hospital Quality Reporting for the Inpatient Quality Reporting Program: HQR_IQR
      # Hospital Quality Reporting for Inpatient Quality Reporting Program voluntary submissions: HQR_IQR_VOL
      # Hospital Quality Reporting for Episode Payment Model voluntary submissions: HQR_EPM_VOL
-    :information_recipient:
-      :identifier:
-        :root:
-        :extension: information_recipient_ext
+    #:information_recipient:
+      #:identifier:
+        #:root:
+        #:extension: information_recipient_ext
     :custodian:
       :ids:
       - :root: custodian_root
@@ -124,11 +124,11 @@ defaults: &defaults
         - :root: legal_authenticator_org_root
           :extension: legal_authenticator_org_ext
         :name: ''
-    :participant:
-      :identifier:
-        :root:
-        :extension: 'T2OR234'
-      :addresses: []
+    #:participant:
+      #:identifier:
+        #:root:
+        #:extension: 'T2OR234'
+      #:addresses: []
 
 
 development:

@@ -1,3 +1,4 @@
+require 'cqm/converter'
 module Api
   class PatientsController < ApplicationController
     resource_description do
@@ -34,7 +35,7 @@ module Api
     param_group :pagination
     formats ['json']
     def index
-      records = Record.where(@query)
+      records = QDM::Patient.where(@query)
       validate_record_authorizations(records)
       
       log_api_call LogAction::VIEW, "Patient list viewed", true
@@ -49,10 +50,10 @@ module Api
     def show
       json_methods = [:language_names]
       json_methods << :cache_results if params[:include_results]
-      json = @patient.as_json({methods: json_methods})
-      json["race"]["name"] = race(@patient) if json["race"]
-      json["ethnicity"]["name"] = ethnicity(@patient) if json["ethnicity"]
-      provider_list = @patient.provider_performances.map{ |p| p.provider}
+      json = @hds_record.as_json({methods: json_methods})
+      json["race"]["name"] = race(@hds_record) if json["race"]
+      json["ethnicity"]["name"] = ethnicity(@hds_record) if json["ethnicity"]
+      provider_list = @hds_record.provider_performances.map{ |p| p.provider}
       provider_list.each do |prov|
         if prov
           if prov.leaf?
@@ -63,7 +64,7 @@ module Api
       if results = json.delete('cache_results')
         json['measure_results'] = results_with_measure_metadata(results)
       end
-      log_api_call LogAction::VIEW, 'Patient record viewed', true
+      #log_api_call LogAction::VIEW, 'Patient record viewed', true
       render :json => json
     end
 
@@ -117,12 +118,14 @@ module Api
     private
 
     def load_patient
-      @patient = Record.find(params[:id])
-      authorize! :read, @patient
+      qdm_patient_converter = CQM::Converter::QDMPatient.new
+      @patient = QDM::Patient.find(params[:id])
+      @hds_record = qdm_patient_converter.to_hds(@patient)
+      authorize! :read, @hds_record
     end
 
     def validate_authorization!
-      authorize! :read, Record
+      authorize! :read, QDM::Patient
     end
 
     def validate_record_authorizations(records)

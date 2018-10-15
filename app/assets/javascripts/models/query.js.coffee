@@ -23,5 +23,6 @@ class Thorax.Models.Query extends Thorax.Model
   performanceRate: -> Math.round(100 * @numerator() / Math.max(1, @performanceDenominator()))
   aggregateResult: -> if @isPopulated() then @get('aggregate_result') else 0
   # hack so that creating a query acts just like checking an existing query
-  fetch: -> if @isNew() then @save() else super(arguments...)
+  fetch: ->
+    if @isNew() then @save() else super(arguments...)
   result: -> _(@get('result')).extend performanceDenominator: @performanceDenominator()

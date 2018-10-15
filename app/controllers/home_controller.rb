@@ -3,7 +3,7 @@ class HomeController < ApplicationController
 
   def index
     # TODO base this on provider
-    @patient_count = Record.count
+    @patient_count = QDM::Patient.count
     @categories = HealthDataStandards::CQM::Measure.categories([:lower_is_better, :type])
   end
 

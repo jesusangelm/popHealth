@@ -65,7 +65,7 @@ class Thorax.Models.Submeasure extends Thorax.Model
       _(criteria).extend id: id
     attrs.data_criteria = new Thorax.Collections.DataCriteria dataCriteria, parse: true
     # only create populations for those that apply to this submeasure
-    for popName, population of attrs.hqmf_document.population_criteria when population.hqmf_id is attrs.population_ids[population.type]
+    for popName, population of attrs.population_criteria when population.hqmf_id is attrs.population_ids[population.type]
       # track the original type of the population (NUMER, or NUMER_1)
       population.original_type = popName
       attrs[population.type] = new Thorax.Models.Population population, parse: true

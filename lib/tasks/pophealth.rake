@@ -84,14 +84,13 @@ namespace :pophealth do
     nlm_user = ENV["nlm_user"]
     nlm_passwd = ENV["nlm_pass"]
     measures_dir = File.join(Rails.root, "bundles")
-
     while nlm_user.nil? || nlm_user == ""
       nlm_user = ask("NLM Username?: "){ |q| q.readline = true }
     end
 
     while nlm_passwd.nil? || nlm_passwd == ""
       nlm_passwd = ask("NLM Password?: "){ |q| q.echo = false
-                                               q.readline = true }
+                                                      q.readline = true }
     end
 
     bundle_version = ENV["version"] || APP_CONFIG["default_bundle"] || "latest"
@@ -108,6 +107,7 @@ namespace :pophealth do
     while bundle.nil? && tries < max_tries do
       tries = tries + 1
       begin
+        #bundle = open("/home/raj/Downloads/bundle-2018.zip")
         bundle = open(bundle_uri, :proxy => ENV["http_proxy"],:http_basic_authentication=>[nlm_user, nlm_passwd] )
       rescue OpenURI::HTTPError => oe
         last_error = oe
@@ -160,18 +160,22 @@ namespace :pophealth do
 
   desc 'Automatically downloads bundle and modifies for variable dates. See download_bundle for params'
   task :download_update_install => [:download_bundle] do
-    de = ENV['delete_existing'] || false
-    um = ENV['update_measures'] || false
+    #de = ENV['delete_existing'] || false
+    #um = ENV['update_measures'] || false
+    options ={:delete_existing => false,
+      :update_measures => false}
     puts "Modifying bundle #{@bundle_name} to support variable date ranges"
     modify_bundle_dates("bundles/#{@bundle_name}")
-    task("bundle:import").invoke("bundles/#{@bundle_name}",de, um , ENV['type'])
-    task("pophealth:remove_artifacts").invoke
+    import_bundle(@bundle_name,options)
+    #task("bundle:import").invoke("bundles/#{@bundle_name}",de, um , ENV['type'],false, er)
+    #task("pophealth:remove_artifacts").invoke
   end
 
   desc 'Adds date modification to import of bundle on disk'
   task :import , [:bundle_path] do |task, args|
     de = ENV['delete_existing'] || false
     um = ENV['update_measures'] || false
+
     @bundle_name=args.bundle_path
     puts "Modifying bundle #{@bundle_name} to support variable date ranges"
     modify_bundle_dates(@bundle_name)
@@ -182,8 +186,8 @@ namespace :pophealth do
   desc 'Removes Cypress artifacts of patient_cache, query_cache, and records'
   task :remove_artifacts => :environment do 
     puts "Cleaning out records and caches"
-    Record.delete_all
+    QDM::Patient.delete_all
     HealthDataStandards::CQM::QueryCache.delete_all
-    PatientCache.delete_all
+    QDM::IndividualResult.delete_all
   end
 end

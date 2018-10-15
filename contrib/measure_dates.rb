@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'zip/zip'
+require_relative '../lib/cql_bundle_importer.rb'
 
 class ZipFileGenerator
   # Initialize with the directory to zip and the location of the output archive.
@@ -66,4 +67,14 @@ def modify_bundle_dates(bundle_name)
   zf.write()
 
   FileUtils.rm_rf('./bundle_tmp')
+end
+
+def import_bundle(file_path, options)
+  bundle_file = File.new("bundles/#{@bundle_name}")
+  importer = CqlBundle::CqlBundleImporter
+  @bundle = importer.import(bundle_file, options)
+  if !@bundle.nil?
+    #@bundle.save!
+    puts "Bundle import Successful"
+  end
 end

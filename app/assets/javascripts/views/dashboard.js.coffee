@@ -14,6 +14,11 @@ class Thorax.Views.ResultsView extends Thorax.View
       change: ->
         # HACK alert: This was currently breaking in an unforgiveably stupid way
         parr = @model.get['providers']
+        if typeof(parr) == 'undefined'
+          parr = []
+          provider = this.provider_id || PopHealth.rootProvider.id || PopHealth.currentUser.provider_id
+          PopHealth.currentUser.provider_id = this.provider_id = provider
+          parr[0]=provider
         if parr && parr.length && typeof(parr[0]) == 'undefined'
           provider = this.provider_id || PopHealth.rootProvider.id || PopHealth.currentUser.provider_id
           PopHealth.currentUser.provider_id = this.provider_id = provider
@@ -174,7 +179,7 @@ class Thorax.Views.Dashboard extends Thorax.View
     # HACK alert: This was currently breaking in an unforgiveably stupid way
     provider = this.provider_id || PopHealth.rootProvider.id
     this.provider_id=provider
-      # end HACK alert
+    # end HACK alert
 
 #this.insertFilenameLinks()
     @showMeasureBaselineReport = Config.showMeasureBaselineReport

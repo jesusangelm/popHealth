@@ -22,11 +22,13 @@ class Thorax.Views.PatientResultsView extends Thorax.View
   fetchTriggerPoint: 500 # fetch data when we're 500 pixels away from the bottom
   patientContext: (patient) ->
     _(patient.toJSON()).extend
-      first: PopHealth.Helpers.maskName(patient.get('first')) if patient.get('first')
-      last: PopHealth.Helpers.maskName(patient.get('last')) if patient.get('last')
-      formatted_birthdate: moment(patient.get('birthdate')).format(PopHealth.Helpers.maskDateFormat('MM/DD/YYYY')) if patient.get('birthdate')
-      age: moment(patient.get('birthdate')).fromNow().split(' ')[0] if patient.get('birthdate')
-      mrn: PopHealth.Helpers.formatMRN(patient.get('medical_record_id'))
+      first: PopHealth.Helpers.maskName(patient.get('extendedData').first[0]) if patient.get('extendedData').first[0]
+      @dob = ""+patient.get('extendedData').DOB.month+"/"+patient.get('extendedData').DOB.day+"/"+patient.get('extendedData').DOB.year
+      last: PopHealth.Helpers.maskName(patient.get('extendedData').last) if patient.get('extendedData').last
+      formatted_birthdate: @dob
+      age: moment(@dob).fromNow().split(' ')[0] if patient.get('extendedData').DOB
+      gender: patient.get('extendedData').gender
+      mrn: PopHealth.Helpers.formatMRN(patient.get('extendedData').medical_record_number)
   events:
     rendered: ->
       $(document).on 'scroll', @scrollHandler

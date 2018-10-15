@@ -9,9 +9,9 @@ class AdminController < ApplicationController
 
   def patients
     log_admin_controller_call LogAction::VIEW, "View patient control panel"
-    @patient_count = Record.count
+    @patient_count = QDM::Patient.count
     @query_cache_count = HealthDataStandards::CQM::QueryCache.count
-    @patient_cache_count = PatientCache.count
+    @patient_cache_count = QDM::IndividualResult.count
     @provider_count = Provider.ne('cda_identifiers.root' => "Organization").count
     @practice_count = Practice.count
     @practices = Practice.asc(:name).map {|org| [org.name, org.id]}
@@ -48,8 +48,8 @@ class AdminController < ApplicationController
   end
 
   def remove_patients
-    log_admin_controller_call LogAction::DELETE, "Remove all #{Record.all.length} patients", true
-    Record.delete_all
+    log_admin_controller_call LogAction::DELETE, "Remove all #{QDM::Patient.all.length} patients", true
+    QDM::Patient.delete_all
     redirect_to action: 'patients'
   end
 
@@ -62,7 +62,7 @@ class AdminController < ApplicationController
   def remove_caches
     log_admin_controller_call LogAction::DELETE, "Remove caches"
     HealthDataStandards::CQM::QueryCache.delete_all
-    PatientCache.delete_all
+    QDM::IndividualResult.delete_all
     Mongoid.default_client["rollup_buffer"].drop()
     redirect_to action: 'patients'
   end

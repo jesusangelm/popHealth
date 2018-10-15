@@ -12,8 +12,8 @@ module QME
     def self.apply_manual_exclusions(measure_id, sub_id)
       mids = where({measure_id: measure_id, sub_id: sub_id}).collect {|me| me.medical_record_id}
       # ERROR: was referencing INSTANCE variables (@measure_id) in a class method. Always nil.
-      QME::PatientCache.where({'value.measure_id'=>measure_id, 'value.sub_id'=>sub_id, 'value.medical_record_id'=>{'$in'=>mids} })
-          .update_all({'$set'=>{'value.manual_exclusion'=>true}})
+      QDM::IndividualResult.where({'measure_id'=>measure_id, 'sub_id'=>sub_id, 'extendedData.medical_record_number'=>{'$in'=>mids} })
+          .update_all({'$set'=>{'extendedData.manual_exclusion'=>true}})
     end
 
   end

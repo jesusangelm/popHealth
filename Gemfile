@@ -1,20 +1,28 @@
 source 'https://rubygems.org'
+ruby '2.3.7'
 
 gem 'rails', '~> 4.2.7'
 
 # Use MongoDB just like in Cypress v2!
 gem 'mongoid', '~> 5.0.2'
-gem 'mongo', '~>2.4.1'
+gem 'mongo'
 # gem 'mongoid', '~> 4.0.2'
 gem 'bson_ext', '~> 1.5.1'
-gem 'delayed_job_mongoid', git: 'https://github.com/collectiveidea/delayed_job_mongoid', tag: 'v2.2.0'
-gem 'health-data-standards', git: 'https://github.com/OSEHRA/health-data-standards.git', branch: 'mongoid5R2'
+gem 'mustache'
 
-gem 'quality-measure-engine', git: 'https://github.com/OSEHRA/quality-measure-engine.git', branch: 'bump_mongoid-carias-adj'
+gem 'delayed_job_mongoid', git: 'https://github.com/collectiveidea/delayed_job_mongoid', tag: 'v2.2.0'
+gem 'cql_qdm_patientapi'
+gem 'cqm-converter', git: 'https://github.com/giriraj0209/cqm-converter.git', branch: 'master'
+gem 'cqm-models', '~> 0.8.4'
+gem 'cqm-parsers', '~> 0.2.1'
+gem 'cqm-validators', '~> 0.1.0'
+gem 'health-data-standards', git: 'https://github.com/giriraj0209/health-data-standards.git', branch: 'r5'
+
+gem 'quality-measure-engine', git: 'https://github.com/giriraj0209/quality-measure-engine.git', branch: 'bump_mongoid'
 
 gem "hqmf2js", :git=> "https://github.com/OSEHRA/hqmf2js.git"
 gem 'nokogiri', '~> 1.8.1'
-gem 'rubyzip', '1.2.1'
+gem 'rubyzip'
 gem 'net-ssh', '2.9.1'
 gem 'hquery-patient-api', '1.0.4'
 gem 'spreadsheet', '1.0.3'
@@ -23,7 +31,7 @@ gem 'sshkit'
 # admin log page. When the admin pages are switched to
 # client side pagination, this can go away.
 gem 'will_paginate'
-
+gem 'bunny'
 gem "active_model_serializers", '0.8.1'
 
 gem 'json', :platforms => :jruby

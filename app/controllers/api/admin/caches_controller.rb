@@ -17,7 +17,7 @@ module Api
         log_admin_api_call LogAction::VIEW, "Count of caches"
         json = {}
         json['query_cache_count'] = HealthDataStandards::CQM::QueryCache.count
-        json['patient_cache_count'] = PatientCache.count
+        json['patient_cache_count'] = QDM::IndividualResult.count
         render :json => json
       end
 
@@ -25,7 +25,7 @@ module Api
       def destroy
         log_admin_api_call LogAction::DELETE, "Empty all caches"
         HealthDataStandards::CQM::QueryCache.delete_all
-        PatientCache.delete_all
+        QDM::IndividualResult.delete_all
         render status: 200, text: 'Server caches have been emptied.'
       end
 

@@ -3,7 +3,6 @@ module PatientsHelper
      if patient.race.kind_of? String
        return patient.race
      end
-
      r = Race.from_code(patient.race["code"]).first if patient.race
      r = r || {}
      r["name"] || ""
