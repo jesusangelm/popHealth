@@ -174,14 +174,21 @@ module Api
           render json: qc
         else
           providers = params[:providers]
-          providers.each do |prov|
-            QDM::Patient.all.each do |p|
-              if(prov == JSON.parse(p.extendedData['provider_performances']).first['provider_id'].to_s)
+          QDM::Patient.all.each do |p|
+            pdata = JSON.parse(p.extendedData["provider_performances"]).select{|pid| pid["provider_id"] == providers.first}
+            if pdata.present?
                 @pids << p._id.to_s
                 @patients << p
-              end
             end
           end
+          #providers.each do |prov|
+            #QDM::Patient.all.each do |p|
+              #if(prov == JSON.parse(p.extendedData['provider_performances']).first['provider_id'].to_s)
+                #@pids << p._id.to_s
+                #@patients << p
+              #end
+            #end
+          #end
           calc_job = Cypress::JsEcqmCalc.new('correlation_id': options[:test_id],'effective_date': Time.at(options[:effective_date]).in_time_zone.to_formatted_s(:number))
           response = calc_job.sync_job(@pids, @mids)
           if response['status'] == 'success'

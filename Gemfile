@@ -11,8 +11,9 @@ gem 'bson_ext', '~> 1.5.1'
 gem 'mustache'
 
 gem 'delayed_job_mongoid', git: 'https://github.com/collectiveidea/delayed_job_mongoid', tag: 'v2.2.0'
-gem 'cql_qdm_patientapi'
+gem 'cql_qdm_patientapi',git: 'https://github.com/projecttacoma/cql_qdm_patientapi.git', tag: 'v1.2.0'
 gem 'cqm-converter', git: 'https://github.com/giriraj0209/cqm-converter.git', branch: 'master'
+
 gem 'cqm-models', '~> 0.8.4'
 gem 'cqm-parsers', '~> 0.2.1'
 gem 'cqm-validators', '~> 0.1.0'

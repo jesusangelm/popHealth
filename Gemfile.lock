@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: https://github.com/giriraj0209/cqm-converter.git
-  revision: e4dea1ece636452913908cef8288b1d74f188000
+  revision: 5d5a307b948951432a4d4f7fb425a1ddf41b6d61
   branch: master
   specs:
     cqm-converter (0.3.7)
@@ -30,7 +30,7 @@ GIT
 
 GIT
   remote: https://github.com/giriraj0209/health-data-standards.git
-  revision: 96bd3dd3e6783c197c5771fed8f568aae2c958fd
+  revision: d3fc53950cd791f20a21606f17963b21d92343da
   branch: r5
   specs:
     health-data-standards (4.0.3)
@@ -59,6 +59,16 @@ GIT
       mongoid (~> 5.0.0)
       rubyzip (>= 1.0.0)
       zip-zip
+
+GIT
+  remote: https://github.com/projecttacoma/cql_qdm_patientapi.git
+  revision: b048a456ef1294627d2100687a131af58b2ae85b
+  tag: v1.2.0
+  specs:
+    cql_qdm_patientapi (1.2.0)
+      coffee-rails (~> 4.1)
+      rails (~> 4.2)
+      sprockets-rails (~> 2.3)
 
 GEM
   remote: https://rubygems.org/
@@ -127,11 +137,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.12.2)
-    concurrent-ruby (1.0.5)
-    cql_qdm_patientapi (1.2.0)
-      coffee-rails (~> 4.1)
-      rails (~> 4.2)
-      sprockets-rails (~> 2.3)
+    concurrent-ruby (1.1.3)
     cqm-models (0.8.4)
     cqm-parsers (0.2.1)
       activesupport (~> 4.2.0)
@@ -208,7 +214,7 @@ GEM
     kgio (2.11.2)
     libv8 (3.16.14.19)
     log4r (1.1.10)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     macaddr (1.7.1)
@@ -259,7 +265,7 @@ GEM
     pry-byebug (3.6.0)
       byebug (~> 10.0)
       pry (~> 0.10)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (4.2.10)
@@ -377,7 +383,7 @@ DEPENDENCIES
   bunny
   cancan
   coffee-rails
-  cql_qdm_patientapi
+  cql_qdm_patientapi!
   cqm-converter!
   cqm-models (~> 0.8.4)
   cqm-parsers (~> 0.2.1)
