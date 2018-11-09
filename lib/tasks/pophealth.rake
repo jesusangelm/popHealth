@@ -168,7 +168,7 @@ namespace :pophealth do
     modify_bundle_dates("bundles/#{@bundle_name}")
     import_bundle(@bundle_name,options)
     #task("bundle:import").invoke("bundles/#{@bundle_name}",de, um , ENV['type'],false, er)
-    #task("pophealth:remove_artifacts").invoke
+    task("pophealth:remove_artifacts").invoke
   end
 
   desc 'Adds date modification to import of bundle on disk'
