@@ -42,9 +42,6 @@ module Cypress
         individual_results.each do |ir|
           measure_populations.each do |pop|
             next if ir[pop].nil? || ir[pop].zero?
-            if ir[pop] >= 1
-              ir[pop] =1
-            end
             @measure_result_hash['result'][pop] += ir[pop]
             increment_sup_info(@patient_sup_map[ir.patient_id.to_s], pop, @measure_result_hash['result'])
           end
