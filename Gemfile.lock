@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: https://github.com/giriraj0209/cqm-converter.git
-  revision: 5d5a307b948951432a4d4f7fb425a1ddf41b6d61
+  revision: bf3a6d570ace4a3dd55aa631358db7176eb494c8
   branch: master
   specs:
     cqm-converter (0.3.7)
@@ -30,7 +30,7 @@ GIT
 
 GIT
   remote: https://github.com/giriraj0209/health-data-standards.git
-  revision: d3fc53950cd791f20a21606f17963b21d92343da
+  revision: da058f509213e4fb20444869d5d40f27c5d1a8dd
   branch: r5
   specs:
     health-data-standards (4.0.3)
