@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/OSEHRA/health-data-standards.git
-  revision: 6e248ebefd5a41ccdf67338ed7adac9780962e0a
+  revision: 0bb963255964bcaab411edebac1bb177e78e8168
   branch: mongoid5R2
   specs:
     health-data-standards (3.7.0)
