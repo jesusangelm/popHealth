@@ -81,7 +81,7 @@ module Cypress
     end
 
     def create_query_cache_object(result, measure)
-      measure_populations = %w[DENOM NUMER DENEX DENEXCEP IPP MSRPOPL MSRPOPLEX]
+      measure_populations = %w[DENOM NUMER DENEX DENEXCEP IPP MSRPOPL MSRPOPLEX OBSERV]
       qco = result
       measure_populations.each do |pop|
         qco[pop] = qco['result'][pop]
