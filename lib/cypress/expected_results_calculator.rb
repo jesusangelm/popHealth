@@ -1,9 +1,10 @@
 module Cypress
   class ExpectedResultsCalculator
-    def initialize(patients, test_id, effective_date, filters)
+    def initialize(patients, test_id, effective_date,start_date, filters)
       @patients = patients
       @test_id = test_id
       @effective_date = effective_date
+      @start_date = start_date
       @patient_sup_map = {}
       @measure_result_hash = {}
       @filters = filters
@@ -88,6 +89,7 @@ module Cypress
       end
       qco['test_id'] = @test_id
       qco['effective_date'] = @effective_date
+      qco['start_date'] = @start_date
       qco['sub_id'] = measure.sub_id if measure.sub_id
       qco['status']['state'] = "completed"
       qco['supplemental_data'] = qco['result']['supplemental_data']

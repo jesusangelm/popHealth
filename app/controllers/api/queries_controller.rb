@@ -168,7 +168,7 @@ module Api
       options[:test_id] = rp._id
       begin
         #, "filters.providers" => {'$in': params[:providers]}
-        qc = QME::QualityReport.where('measure_id' => params[:measure_id], 'effective_date' => options[:effective_date], 'sub_id' => params[:sub_id]).first
+        qc = QME::QualityReport.where('measure_id' => params[:measure_id], 'effective_date' => options[:effective_date],'start_date' => options[:start_date], 'sub_id' => params[:sub_id]).first
         if qc
           puts "calculation is already available in cache"
           render json: qc
@@ -189,7 +189,7 @@ module Api
               #end
             #end
           #end
-          calc_job = Cypress::JsEcqmCalc.new('correlation_id': options[:test_id],'effective_date': Time.at(options[:effective_date]).in_time_zone.to_formatted_s(:number))
+          calc_job = Cypress::JsEcqmCalc.new('correlation_id': options[:test_id],'effective_date': Time.at(options[:effective_date]).in_time_zone.to_formatted_s(:number), 'measure_period_start': Time.at(options[:start_date]).in_time_zone.to_formatted_s(:number)) 
           response = calc_job.sync_job(@pids, @mids)
           if response['status'] == 'success'
             calc_job.stop
@@ -197,7 +197,7 @@ module Api
             @msrs.each do |msr|
               QME::ManualExclusion.apply_manual_exclusions(msr._id,msr.sub_id)
             end
-            erc = Cypress::ExpectedResultsCalculator.new(@patients,options[:test_id],options[:effective_date],options[:filters])
+            erc = Cypress::ExpectedResultsCalculator.new(@patients,options[:test_id],options[:effective_date],options[:start_date],options[:filters])
             @results = erc.aggregate_results_for_measures(@msrs)
           end
             log_api_call LogAction::ADD, "Create a clinical quality calculation"
