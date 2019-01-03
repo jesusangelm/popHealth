@@ -87,16 +87,15 @@ defaults: &defaults
         - :root: authors_organization_root
           :extension: authors_organization_ext
         :name: ''
-    # Replace information recipient extension with the program code for CMS programs 
-     # Hospital Quality Reporting for the EHR Incentive Program: HQR_EHR
-     # Hospital Quality Reporting for the EHR Incentive Program and the IQR Program: HQR_EHR_IQR
+    # Replace information recipient extension with the program code for CMS programs
+     # Hospital Quality Reporting for the Promoting Interoperability Program: HQR_PI
      # Hospital Quality Reporting for the Inpatient Quality Reporting Program: HQR_IQR
-     # Hospital Quality Reporting for Inpatient Quality Reporting Program voluntary submissions: HQR_IQR_VOL
-     # Hospital Quality Reporting for Episode Payment Model voluntary submissions: HQR_EPM_VOL
-    #:information_recipient:
-      #:identifier:
-        #:root:
-        #:extension: information_recipient_ext
+     # Hospital Quality Reporting for the Promoting Interoperability Program and the Inpatient Quality Reporting Program: HQR_PI_IQR
+     # Hospital Quality Reporting for Inpatient Quality Reporting Program  voluntary submissions: HQR_IQR_VOL
+    :information_recipient:
+      :identifier:
+        :root:
+        :extension: information_recipient_ext
     :custodian:
       :ids:
       - :root: custodian_root
@@ -109,6 +108,8 @@ defaults: &defaults
         - :root: custodian_organization_root
           :extension: custodian_organization_ext
         :name: ''
+        :addresses: []
+        :telecoms: []
     :legal_authenticator:
       :ids:
       - :root: legal_authenticator_root
@@ -124,11 +125,11 @@ defaults: &defaults
         - :root: legal_authenticator_org_root
           :extension: legal_authenticator_org_ext
         :name: ''
-    #:participant:
-      #:identifier:
-        #:root:
-        #:extension: 'T2OR234'
-      #:addresses: []
+    :participant:
+      :identifier:
+        :root:
+        :extension: 'T2OR234'
+      :addresses: []
 
 
 development:

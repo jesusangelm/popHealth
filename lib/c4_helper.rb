@@ -74,7 +74,7 @@ module C4Helper
       "#{p['first']}_#{p['last']}"
     end
     
-    #generating header information required for IQR Program
+    #generating header information required for EH Program
     def headergenerater(patient)
       header = Qrda::Header.new(APP_CONFIG["cda_header"])
       extn = nil  
@@ -90,6 +90,8 @@ module C4Helper
         if !extn.nil?
           header.custodian.organization.ids.each {|a| a.extension = extn}
         end
+        header.authors.each { |a| a.time = Time.now }
+        header.legal_authenticator.time = Time.now
       else
         header=nil
       end
@@ -105,7 +107,12 @@ module C4Helper
               pmeas=@measures.select { |m| patient_hash[:sub_id].include?(m[:sub_id]) }
               zout.put_next_entry(make_name(patient)+'.xml')
               begin
-                zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date,nil, 'r5'))
+                headerforiqr = headergenerater(patient)
+                  if headerforiqr.nil?
+                   zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date,nil, 'r5'))
+                  else
+                    zout.puts(@exporter.export(patient, pmeas, @start_date, @end_date, headerforiqr, 'r5'))
+                  end
               rescue Exception => e
                 puts e.message
                 puts e.backtrace.inspect
