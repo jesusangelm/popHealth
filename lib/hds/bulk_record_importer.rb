@@ -208,9 +208,47 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
     end
     begin
     qdm_patient = @hds_record_converter.to_qdm(record)
+    qdm_patient = self.checkdedup(qdm_patient, practice_id)
     qdm_patient.save!
     rescue Exception => e
       puts e.message
     end
+  end
+  def self.checkdedup(qdm_patient, practice_id=nil)
+    mrn = qdm_patient.extendedData['medical_record_number']
+    mrn_p = (practice_id)? mrn + "_pid_" + practice_id : ''
+
+    if practice_id
+      existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn_p).first
+    else
+      existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn).first
+    end
+    if existing
+      existing.update_attributes!(qdm_patient.attributes.except('_id', 'extendedData.medical_record_number', 'practice_id'))
+      existing = self.update_dataelements(existing, qdm_patient)
+      existing
+    else
+      qdm_patient
+    end
+  end
+
+  def self.update_dataelements(existing, incoming)
+    incoming.dataElements.each do |de|
+      query={}
+      if de["_type"]
+        query["_type"] = de["_type"]
+      end
+
+      if de["relevantPeriod"]
+        query["relevantPeriod.low"] = de["relevantPeriod"][:low] if de["relevantPeriod"][:low]
+        query["relevantPeriod.high"] = de["relevantPeriod"][:high] if de["relevantPeriod"][:high]
+      end
+
+      is_available = existing.dataElements.where(query).first
+      if !is_available
+        existing.dataElements.push(de)
+      end    
+    end
+    existing
   end
 end

@@ -29,15 +29,17 @@ class Record
     mrn = data.medical_record_number
     mrn_p = (practice_id)? mrn + "_pid_" + practice_id : ''
     if practice_id
-      #existing = Record.where(medical_record_number: mrn_p).first
       existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn_p).first
     else
-      #existing = Record.where(medical_record_number: mrn).first
       existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn).first
     end
 
-    if existing
-      existing.update_attributes!(data.attributes.except('_id', 'extendedData.medical_record_number', 'extendedData.practice_id'))
+    if !existing
+      if practice_id 
+        data.practice = Practice.find(practice_id)
+        data.medical_record_number = mrn_p
+      end
+    end
       
 =begin      
       # updates
@@ -81,15 +83,8 @@ class Record
       end
       existing
 =end
-    else
-      if practice_id 
-        data.practice = Practice.find(practice_id)
-        data.medical_record_number = mrn_p
-      end
       #data.save!
       #Delayed::Worker.logger.info("Record for #{data.first} #{data.last} imported")
       data
-    end
   end
-  
 end
