@@ -43,9 +43,23 @@ class Thorax.Views.EntryView extends Thorax.View
       entry_type: @model.entryType
       icon: @model.icon
       description: @model.get('description')?.split('(')[0]
-
+      codes= @model.get('codes') if @model.get('codes')?
+      facility= @model.get('facility').values[0] if @model.get('facility')?
+      dischargedisposition= @model.get('dischargeDisposition') if @model.get('dischargeDisposition')?
+      principaldiagnosis= @model.get('principalDiagnosis') if @model.get('principalDiagnosis')?
+      facilitycode: facility.code.code if facility?
+      facilitycodesys: facility.code.code_system if facility?
+      dischargedispositioncode: dischargedisposition.code if dischargedisposition
+      dischargedispositionsys: dischargedisposition.code_system if dischargedisposition
+      principaldiagnosiscode: principaldiagnosis.code if principaldiagnosis
+      principaldiagnosissys: principaldiagnosis.code_system if principaldiagnosis
+      lengthofstay: lengthofstaycalc(facility.locationPeriodHigh,facility.locationPeriodLow) if facility?
+      
   # Helper function for date/time conversion
-  formatTime = (time) -> moment(time).format('M/DD/YYYY') if time
+  formatTime = (time) -> moment(time).format('MMMM Do YYYY, h:mm:ss a') if time
+  lengthofstaycalc = (high,low) ->
+    days = moment(high).diff(moment(low), 'days')
+    return days  
 
 ### Note ###
 #

@@ -25,7 +25,6 @@
       {{/collection}}
     </div>
 
-
     {{!--
     {{#collection measure_results}}
       <a href="#measures/{{measure_id}}{{#if sub_id}}/{{sub_id}}{{/if}}" class="btn btn-measure btn-default">
@@ -88,27 +87,46 @@
         <div class="circle-icon"><i class="fa fa-{{icon}}"></i></div>
         <div class="patient-data">
           <div class="patient-data-list">
+            {{#if description}}
+                <div class="timeline-entry"><h4>{{description}}</h4></div>
+            {{else}}
+              <div class="timeline-entry"><h4>{{entry_type}}</h4></div>
+            {{/if}}
+            <div class="timeline-entry"><h5>Times</h5></div>
             <dl class="dl-horizontal">
-              <dt>{{entry_type}}</dt>
-              <dd>
-                {{#if description}}
-                  <div>{{description}}</div>
-                {{else}}
-                  <div class="text-muted">No Details Available</div>
-                {{/if}}
-                {{#if values}}
-                  <div>
-                  {{#join values delimiter=', '}}
-                    {{#if description}}{{description}}{{else}}{{scalar}} {{units}}{{/if}}
-                  {{/join}}
-                  </div>
-                {{/if}}
-              </dd>
+              <dt>Start Date</dt>
+              <dd>{{#if start_time}} {{start_time}} {{else}} {{time_format}} {{/if}} </dd> 
             </dl>
             <dl class="dl-horizontal">
-              <dt>date</dt>
-              <dd>{{#if start_time}} {{start_time}} {{else}} {{time_format}} {{/if}} {{#if display_end_time}} &ndash; {{end_time}}{{/if}}</dd>
+              <dt>End Date</dt>
+              <dd>{{#if display_end_time}} {{end_time}}{{/if}}</dd> 
             </dl>
+            <div class="timeline-entry"><h5>Codes</h5></div>
+            {{#if codes}}
+            {{#each codes}}
+            <dl class="dl-horizontal">
+              <dt>{{@key}}</dt>
+              <dd>{{this}}</dd> 
+            </dl>
+            {{/each}}
+            {{/if}}<br>
+            <div class="timeline-entry"><h5>Other Fields</h5></div>
+            {{#if facility}}
+            <dl class="dl-horizontal">
+              <dt>Facility</dt>
+              <dd>{{facilitycode}}({{facilitycodesys}})</dd> <br>
+              <dt>Length Of Stay</dt>
+              <dd>{{lengthofstay}} Day(s)</dd> <br>
+            {{/if}}
+            {{#if dischargedispositioncode}}
+              <dt style="overflow: visible">Discharge Disposition</dt>
+              <dd>{{dischargedispositioncode}}({{dischargedispositionsys}})</dd> <br>
+            {{/if}}
+            {{#if principaldiagnosiscode}}
+              <dt>Principal Diagnosis</dt>
+              <dd>{{principaldiagnosiscode}}({{principaldiagnosissys}})</dd> 
+            </dl>
+            {{/if}}
           </div>
         </div>
       </div>
