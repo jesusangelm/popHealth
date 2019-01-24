@@ -111,8 +111,8 @@
             {{/each}}
             {{/if}}<br>
             <div class="timeline-entry"><h5>Other Fields</h5></div>
-            {{#if facility}}
             <dl class="dl-horizontal">
+            {{#if facility}}
               <dt>Facility</dt>
               <dd>{{facilitycode}}({{facilitycodesys}})</dd> <br>
               <dt>Length Of Stay</dt>
@@ -125,8 +125,12 @@
             {{#if principaldiagnosiscode}}
               <dt>Principal Diagnosis</dt>
               <dd>{{principaldiagnosiscode}}({{principaldiagnosissys}})</dd> 
-            </dl>
             {{/if}}
+            {{#if resultvalue}}
+              <dt>Result</dt>
+              <dd>{{resultvalue}} {{resultunit}}</dd> 
+            {{/if}}
+            </dl>
           </div>
         </div>
       </div>

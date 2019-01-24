@@ -19,11 +19,12 @@ class Thorax.Models.Patient extends Thorax.Model
     attrs
 
 class Thorax.Collections.Entries extends Thorax.Collection
-  types: ['allergies', 'conditions', 'encounters', 'immunizations',
+  types: ['assessments','allergies', 'conditions', 'encounters', 'immunizations',
       'medical_equipment', 'results', 'medications', 'procedures',
       'vital_signs', 'socialhistories']
   model: (attrs, options) ->
     klass =
+      assessments:        Thorax.Models.Assessment
       allergies:          Thorax.Models.Allergy
       conditions:         Thorax.Models.Condition
       encounters:         Thorax.Models.Encounter
@@ -50,6 +51,10 @@ class Thorax.Models.Entry extends Thorax.Model
     if attrs.values
       attrs.values = new Thorax.Collection attrs.values
     attrs
+
+class Thorax.Models.Assessment extends Thorax.Models.Entry
+  entryType: 'assessment'
+  icon: 'stethoscope'
 
 class Thorax.Models.Allergy extends Thorax.Models.Entry
   entryType: 'allergy'

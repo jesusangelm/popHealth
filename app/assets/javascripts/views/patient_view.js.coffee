@@ -54,7 +54,10 @@ class Thorax.Views.EntryView extends Thorax.View
       principaldiagnosiscode: principaldiagnosis.code if principaldiagnosis
       principaldiagnosissys: principaldiagnosis.code_system if principaldiagnosis
       lengthofstay: lengthofstaycalc(facility.locationPeriodHigh,facility.locationPeriodLow) if facility?
-      
+      result= @model.get('values') if @model.get('values')?
+      resultvalue: result.models[0].attributes.scalar if result?
+      resultunit: result.models[0].attributes.units if result?
+
   # Helper function for date/time conversion
   formatTime = (time) -> moment(time).format('MMMM Do YYYY, h:mm:ss a') if time
   lengthofstaycalc = (high,low) ->
