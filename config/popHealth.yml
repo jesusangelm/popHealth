@@ -23,8 +23,8 @@ defaults: &defaults
   # force the system to allow HTTP connections
   force_unsecure_communications: true
   use_map_reduce_prefilter: true
-  enable_map_reduce_rationale: true
-  enable_map_reduce_logging: true
+  enable_map_reduce_rationale: false
+  enable_map_reduce_logging: false
   #use practice-based system instead of provider opml hierarchy
   use_opml_structure: false
   # Number of Threads for Patient Import
@@ -36,7 +36,7 @@ defaults: &defaults
   show_measure_baseline_report: false
 
   # Enable/disable csrf for API by default is true
-  enable_csrf_for_apis: false
+  enable_csrf_for_apis: true
 
   # Define the ranges to color-code the provider's results in the baseline report
   measure_baseline_ranges:
