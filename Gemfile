@@ -12,14 +12,14 @@ gem 'mustache'
 
 gem 'delayed_job_mongoid', git: 'https://github.com/collectiveidea/delayed_job_mongoid', tag: 'v2.2.0'
 gem 'cql_qdm_patientapi',git: 'https://github.com/projecttacoma/cql_qdm_patientapi.git', tag: 'v1.2.0'
-gem 'cqm-converter', git: 'https://github.com/giriraj0209/cqm-converter.git', branch: 'master'
+gem 'cqm-converter', git: 'https://github.com/OSEHRA/cqm-converter.git', branch: 'master'
 
 gem 'cqm-models', '~> 0.8.4'
 gem 'cqm-parsers', '~> 0.2.1'
 gem 'cqm-validators', '~> 0.1.0'
-gem 'health-data-standards', git: 'https://github.com/giriraj0209/health-data-standards.git', branch: 'r5'
+gem 'health-data-standards', git: 'https://github.com/OSEHRA/health-data-standards.git', branch: 'r5'
 
-gem 'quality-measure-engine', git: 'https://github.com/giriraj0209/quality-measure-engine.git', branch: 'bump_mongoid'
+gem 'quality-measure-engine', git: 'https://github.com/OSEHRA/quality-measure-engine.git', branch: 'bump_mongoid_v6'
 
 gem "hqmf2js", :git=> "https://github.com/OSEHRA/hqmf2js.git"
 gem 'nokogiri', '~> 1.8.1'

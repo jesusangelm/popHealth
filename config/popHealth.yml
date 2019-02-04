@@ -23,12 +23,12 @@ defaults: &defaults
   # force the system to allow HTTP connections
   force_unsecure_communications: true
   use_map_reduce_prefilter: true
-  enable_map_reduce_rationale: false
-  enable_map_reduce_logging: false
+  enable_map_reduce_rationale: true
+  enable_map_reduce_logging: true
   #use practice-based system instead of provider opml hierarchy
   use_opml_structure: false
   # Number of Threads for Patient Import
-  patient_import_threads: 4
+  patient_import_threads: 1
   # use workaround for new measure bundle 2.6.0 to get measure results
   ignore_provider_performance_dates: true
 
@@ -36,7 +36,7 @@ defaults: &defaults
   show_measure_baseline_report: false
 
   # Enable/disable csrf for API by default is true
-  enable_csrf_for_apis: true
+  enable_csrf_for_apis: false
 
   # Define the ranges to color-code the provider's results in the baseline report
   measure_baseline_ranges:
@@ -74,13 +74,21 @@ defaults: &defaults
       :extension:
     :authors:
     - :ids:
-      - :root: author_root
-        :extension: author_extension
+      - :root:author_root
+        :extension:author_extension
       :device:
         :name: 'PopHealth'
-        :model: '5.0.0'
-      :addresses: []
-      :telecoms: []
+        :model: '6.0.0'
+      :addresses:
+      - :street:author_address  
+        :use:''
+        :city:''
+        :state:''
+        :zip:''
+        :country:''
+      :telecoms:
+      - :value:author_telecom
+        :use:''
       :time:
       :organization:
         :ids:
@@ -88,10 +96,15 @@ defaults: &defaults
           :extension: authors_organization_ext
         :name: ''
     # Replace information recipient extension with the program code for CMS programs
+
      # Hospital Quality Reporting for the Promoting Interoperability Program: HQR_PI
+
      # Hospital Quality Reporting for the Inpatient Quality Reporting Program: HQR_IQR
+
      # Hospital Quality Reporting for the Promoting Interoperability Program and the Inpatient Quality Reporting Program: HQR_PI_IQR
+
      # Hospital Quality Reporting for Inpatient Quality Reporting Program  voluntary submissions: HQR_IQR_VOL
+
     :information_recipient:
       :identifier:
         :root:
@@ -108,14 +121,30 @@ defaults: &defaults
         - :root: custodian_organization_root
           :extension: custodian_organization_ext
         :name: ''
-        :addresses: []
-        :telecoms: []
+        :addresses:
+        - :street: custodian_organization_address
+          :use: ''
+          :city: ''
+          :state: ''
+          :zip: ''
+          :country: '' 
+        :telecoms:
+        - :value: ''
+          :use: ''
     :legal_authenticator:
       :ids:
       - :root: legal_authenticator_root
         :extension: legal_authenticator_ext
-      :addresses: []
-      :telecoms: []
+      :addresses:
+      - :street: legal_authenticator_address
+        :use: ''
+        :city: ''
+        :state: ''
+        :zip: ''
+        :country: ''
+      :telecoms:
+      - :value: ''
+        :use: ''
       :time:
       :person:
         :given:
