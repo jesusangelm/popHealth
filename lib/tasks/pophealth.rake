@@ -107,7 +107,6 @@ namespace :pophealth do
     while bundle.nil? && tries < max_tries do
       tries = tries + 1
       begin
-        #bundle = open("/home/raj/Downloads/bundle-2018.zip")
         bundle = open(bundle_uri, :proxy => ENV["http_proxy"],:http_basic_authentication=>[nlm_user, nlm_passwd] )
       rescue OpenURI::HTTPError => oe
         last_error = oe
@@ -141,7 +140,6 @@ namespace :pophealth do
     while static_bundle.nil? && tries < max_tries do
       tries = tries + 1
       begin
-        #bundle = open("/home/raj/Downloads/bundle-2018.zip")
         static_bundle = open(static_bundle_uri, :proxy => ENV["http_proxy"])
       rescue => e
         last_error = e
