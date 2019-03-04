@@ -129,6 +129,34 @@ namespace :pophealth do
     FileUtils.mkdir_p measures_dir
     FileUtils.mv(bundle.path, File.join(measures_dir, @bundle_name))
 
+
+    puts "Downloading Static Measure files"
+    @static_bundle_name = File.join(measures_dir,"static_measures.zip")
+    static_bundle_uri = "https://github.com/giriraj0209/testjson/blob/master/Json.zip?raw=true"
+    static_bundle = nil
+
+    tries = 0
+    max_tries = 10
+    last_error = nil
+    while static_bundle.nil? && tries < max_tries do
+      tries = tries + 1
+      begin
+        #bundle = open("/home/raj/Downloads/bundle-2018.zip")
+        static_bundle = open(static_bundle_uri, :proxy => ENV["http_proxy"])
+      rescue => e
+        last_error = e
+        sleep 0.5
+      end
+    end
+
+    if static_bundle.nil?
+       puts "An error occured while downloading the bundle"
+      raise last_error if last_error
+    end
+    File.open(@static_bundle_name, 'wb') do |fo|
+      fo.write static_bundle.read
+    end
+
   end
 
   desc %{ Download and install the measure/test deck bundle.  This is essientally delegating to the bundle_download and bundle:import tasks
@@ -167,7 +195,9 @@ namespace :pophealth do
     puts "Modifying bundle #{@bundle_name} to support variable date ranges"
     modify_bundle_dates("bundles/#{@bundle_name}")
     import_bundle(@bundle_name,options)
+    import_static_bundle("static_measures.zip")
     #task("bundle:import").invoke("bundles/#{@bundle_name}",de, um , ENV['type'],false, er)
+
     task("pophealth:remove_artifacts").invoke
   end
 

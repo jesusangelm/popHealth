@@ -1,0 +1,27 @@
+{{#button "topFunction" id="gototop" title="Go to top"}}Top{{/button}}
+<div>
+<a href="#{{#if providerId}}/providers/{{providerId}}{{/if}}" class="btn btn-primary pull-left">Dashboard</a>
+<a href="#measures/{{entries.measure_id}}{{#if subId}}/{{subId}}{{/if}}{{#if providerId}}/providers/{{providerId}}{{/if}}/patient_results" class="btn btn-primary pull-right">Patient Results</a><br>
+</div>
+<h3 style="text-align:center"> Measure Details For {{entries.cms_id}}<h3>
+<br><h4>Population Criteria</h4>
+<table class= "table" style= "padding-left: 40px">
+<tr><td> Initial Population </td><td>{{entries.initial_population}}</td></tr>
+<tr><td> Numerator </td><td>{{entries.numerator}}</td></tr>
+<tr><td> Denominator </td><td>{{entries.denominator}}</td></tr>
+<tr><td> Denominator Exceptions </td><td>{{entries.denominator_exceptions}}</td></tr>
+<tr><td> Denominator Exclusions </td><td>{{entries.denominator_exclusions}}</td></tr>
+<tr><td> Numerator Exclusions </td><td>{{entries.numerator_exclusions}}</td></tr>
+</table>
+<h4>Terminology</h4>
+<table class = "table">
+{{#each entries.terminology}}
+<tr><td>{{this}}</td></tr>
+{{/each}}
+</table>
+<h4>Data Criteria</h4>
+<table class = "table">
+{{#each entries.data_criteria}}
+<tr><td>{{this}}</td></tr>
+{{/each}}
+</table>

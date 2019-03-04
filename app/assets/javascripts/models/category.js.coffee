@@ -39,3 +39,10 @@ class Thorax.Collections.Categories extends Thorax.Collection
           desiredMeasure = measure.get('submeasures').first()
         return
     desiredMeasure
+
+
+  findStaticmeasure: (id, subId, providerId) ->
+    console.log("Find static measure for ", id)
+    staticmeasure = new Thorax.Models.Staticmeasure id: id
+    staticmeasure.fetch()
+    staticmeasure
