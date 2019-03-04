@@ -21,6 +21,19 @@ module Api
         render :json => json
       end
 
+      api :GET, "/admin/caches/spinner", "Return spinner status"
+      def spinner
+        json = {}
+        json['spinner_stat'] = Delayed::Job.where(queue: "patient_import").count
+        render :json => json
+      end
+
+      api :GET, "/admin/caches/staticmeasures", "Return static measure"
+      def static_measure
+        smeasure = StaticMeasure.where({"measure_id" => params[:id]}).first
+        render :json => smeasure
+      end
+
       api :DELETE, "/admin/caches", "Empty all caches in the database."
       def destroy
         log_admin_api_call LogAction::DELETE, "Empty all caches"
