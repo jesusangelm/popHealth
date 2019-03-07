@@ -41,8 +41,13 @@ class PopHealth.Router extends Backbone.Router
    
   measure: (id, subId, providerId) ->
     staticmeasure = @categories.findStaticmeasure(id, subId)
+    submeasure = @categories.findSubmeasure(id, subId)
+    currentView = @view.getView()
+    unless currentView instanceof Thorax.Views.MeasureView and currentView.measure is submeasure
+      currentView = new Thorax.Views.MeasureView submeasure: submeasure, viewType: 'logic', provider_id: providerId
+      @view.setView currentView
     view = new Thorax.Views.StaticmeasureView staticmeasure: staticmeasure, subId: subId, providerId: providerId
-    $('#container').html(view.render().el)
+    currentView.setView view
 
     
   patientResultsForMeasure: (id, subId, providerId) ->
