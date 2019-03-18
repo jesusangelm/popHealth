@@ -16,7 +16,6 @@ module StaticBundle
   		end
   	end
   	def self.unpack_json(entry)
-  		puts "In unpack_json"
   		JSON.parse(entry.get_input_stream.read, max_nesting: false)
   	end
   end

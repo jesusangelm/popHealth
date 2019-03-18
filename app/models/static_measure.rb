@@ -9,7 +9,11 @@ class StaticMeasure
   field :numerator, type: String
   field :numerator_exclusions, type: String
   field :denominator_exceptions, type: String
-  field :stratification, type: String
+  field :stratification, type: Array
   field :terminology, type: Array
   field :data_criteria, type: Array
+  field :measure_population, type: String
+  field :measure_population_exclusions, type: String
+  field :measure_observation, type: String
+  field :population_criteria, type: Array
 end
