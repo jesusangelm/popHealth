@@ -16,4 +16,5 @@ class StaticMeasure
   field :measure_population_exclusions, type: String
   field :measure_observation, type: String
   field :population_criteria, type: Array
+  field :definition, type: String
 end

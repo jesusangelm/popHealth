@@ -55,4 +55,9 @@
 <tr><td>{{this}}</td></tr>
 {{/each}}
 </table>
-
+<h4>Definition</h4>
+{{#if entries.definition}}
+<table class = "table" style = "white-space: pre">
+{{{entries.definition}}}
+</table>
+{{/if}}

@@ -30,7 +30,19 @@ module Api
 
       api :GET, "/admin/caches/staticmeasures", "Return static measure"
       def static_measure
+        measure_definition = nil
+        cql_element = nil
         smeasure = StaticMeasure.where({"measure_id" => params[:id]}).first
+        cql_measure = HealthDataStandards::CQM::Measure.where({"hqmf_id" => params[:id]}).first
+        if (cql_measure)
+          cql_element = cql_measure["cql"][0]
+          measure_definition = cql_element[cql_element.index("define") .. cql_element.length].gsub! "define",""
+          measure_definition = measure_definition.insert(0,"<tr><td><b>").gsub! "\r\n\r\n", "</td></tr>\r\n\r\n<tr><td><b>"
+          measure_definition.gsub!("\":\r\n\t", "\"</b>:\r\n\t")
+          measure_definition.gsub!("\):\r\n\t", "\)</b>:\r\n\t")
+          measure_definition << "</td></tr>"
+        end
+        smeasure.definition = measure_definition
         render :json => smeasure
       end
 
