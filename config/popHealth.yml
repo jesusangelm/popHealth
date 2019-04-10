@@ -81,7 +81,7 @@ defaults: &defaults
         :model: '6.0.0'
       :addresses:
       - :street:
-        :use: Home
+        :use:
         :city:
         :state:
         :zip:
