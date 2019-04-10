@@ -74,27 +74,55 @@ defaults: &defaults
       :extension:
     :authors:
     - :ids:
-      - :root:author_root
-        :extension:author_extension
+      - :root: author_root
+        :extension: author_extension
       :device:
         :name: 'PopHealth'
         :model: '6.0.0'
       :addresses:
-      - :street:author_address  
-        :use:''
-        :city:''
-        :state:''
-        :zip:''
-        :country:''
+      - :street:
+        :use: Home
+        :city:
+        :state:
+        :zip:
+        :country:
       :telecoms:
-      - :value:author_telecom
-        :use:''
+      - :value: author_telecom
+        :use:
       :time:
       :organization:
         :ids:
         - :root: authors_organization_root
           :extension: authors_organization_ext
+        :name:
+    :legal_authenticator:
+      :ids:
+      - :root: legal_authenticator_root
+        :extension: legal_authenticator_ext
+      :addresses:
+      - :street:
+        :use:
+        :city:
+        :state:
+        :zip:
+        :country:
+      :telecoms:
+      - :value: author_telecom
+        :use:
+      :time:
+      :person:
+        :given:
+        :family:
+      :organization:
+        :ids:
+        - :root: legal_authenticator_org_root
+          :extension: legal_authenticator_org_ext
         :name: ''
+    :participant:
+      :identifier:
+        :root:
+        :extension: 'T2OR234'
+      :addresses: []
     # Replace information recipient extension with the program code for CMS programs
 
      # Hospital Quality Reporting for the Promoting Interoperability Program: HQR_PI
@@ -122,43 +150,15 @@ defaults: &defaults
           :extension: custodian_organization_ext
         :name: ''
         :addresses:
-        - :street: custodian_organization_address
-          :use: ''
-          :city: ''
-          :state: ''
-          :zip: ''
-          :country: '' 
+        - :street:
+          :use:
+          :city:
+          :state:
+          :zip:
+          :country: 
         :telecoms:
-        - :value: ''
-          :use: ''
-    :legal_authenticator:
-      :ids:
-      - :root: legal_authenticator_root
-        :extension: legal_authenticator_ext
-      :addresses:
-      - :street: legal_authenticator_address
-        :use: ''
-        :city: ''
-        :state: ''
-        :zip: ''
-        :country: ''
-      :telecoms:
-      - :value: ''
-        :use: ''
-      :time:
-      :person:
-        :given:
-        :family:
-      :organization:
-        :ids:
-        - :root: legal_authenticator_org_root
-          :extension: legal_authenticator_org_ext
-        :name: ''
-    :participant:
-      :identifier:
-        :root:
-        :extension: 'T2OR234'
-      :addresses: []
+        - :value:
+          :use:
 
 
 development:
