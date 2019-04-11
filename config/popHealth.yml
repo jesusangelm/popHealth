@@ -80,7 +80,7 @@ defaults: &defaults
         :name: 'PopHealth'
         :model: '6.0.0'
       :addresses:
-      - :street:
+      - :street: ['authors_addr_street']
         :use:
         :city:
         :state:
@@ -100,7 +100,7 @@ defaults: &defaults
       - :root: legal_authenticator_root
         :extension: legal_authenticator_ext
       :addresses:
-      - :street:
+      - :street: ['legal_authenticator_addr_street']
         :use:
         :city:
         :state:
@@ -150,7 +150,7 @@ defaults: &defaults
           :extension: custodian_organization_ext
         :name: ''
         :addresses:
-        - :street:
+        - :street: ['custodian_addr_street']
           :use:
           :city:
           :state:
