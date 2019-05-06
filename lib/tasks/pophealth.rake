@@ -128,10 +128,10 @@ namespace :pophealth do
     FileUtils.mkdir_p measures_dir
     FileUtils.mv(bundle.path, File.join(measures_dir, @bundle_name))
 
-
+   # Using Open URI is now redundant. Need to change it local file import
     puts "Downloading Static Measure files"
     @static_bundle_name = File.join(measures_dir,"static_measures.zip")
-    static_bundle_uri = "https://github.com/giriraj0209/testjson/blob/master/Json.zip?raw=true"
+    static_bundle_uri = "https://github.com/OSEHRA/popHealth/blob/v6/lib/measures/cql_measure_json.zip?raw=true"
     static_bundle = nil
 
     tries = 0
