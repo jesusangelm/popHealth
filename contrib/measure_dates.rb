@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'zip/zip'
 require_relative '../lib/cql_bundle_importer.rb'
+require_relative '../lib/static_bundle_importer.rb'
 
 class ZipFileGenerator
   # Initialize with the directory to zip and the location of the output archive.
@@ -73,6 +74,17 @@ def import_bundle(file_path, options)
   bundle_file = File.new("bundles/#{@bundle_name}")
   importer = CqlBundle::CqlBundleImporter
   @bundle = importer.import(bundle_file, options)
+  if !@bundle.nil?
+    #@bundle.save!
+    puts "Bundle import Successful"
+  end
+end
+
+def import_static_bundle(file_path)
+  puts "In import_static_bundle"
+  bundle_file = File.new("bundles/#{file_path}")
+  importer = StaticBundle::StaticBundleImporter
+  @bundle = importer.import(bundle_file)
   if !@bundle.nil?
     #@bundle.save!
     puts "Bundle import Successful"

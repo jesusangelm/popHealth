@@ -1,0 +1,63 @@
+{{#button "topFunction" id="gototop" title="Go to top"}}Top{{/button}}
+
+{{#if entries.population_criteria}}
+{{#each entries.population_criteria}}
+<h4>Population Criteria {{inc @index}}</h4>
+<table class= "table">
+<tr><td> Initial Population </td><td> {{this.initial_population}} </td></tr>
+<tr><td> Numerator </td><td>{{this.numerator}}</td></tr>
+<tr><td> Denominator </td><td>{{this.denominator}}</td></tr>
+<tr><td> Denominator Exceptions </td><td>{{this.denominator_exceptions}}</td></tr>
+<tr><td> Denominator Exclusions </td><td>{{this.denominator_exclusions}}</td></tr>
+<tr><td> Numerator Exclusions </td><td>{{this.numerator_exclusions}}</td></tr>
+</table>
+{{/each}}
+{{else}}
+<h4>Population Criteria</h4>
+<table class= "table">
+<tr><td> Initial Population </td><td>{{entries.initial_population}}</td></tr>
+{{#if entries.numerator}}
+<tr><td> Numerator </td><td>{{entries.numerator}}</td></tr>
+{{/if}}
+{{#if entries.denominator}}
+<tr><td> Denominator </td><td>{{entries.denominator}}</td></tr>
+{{/if}}
+{{#if entries.denominator_exceptions}}
+<tr><td> Denominator Exceptions </td><td>{{entries.denominator_exceptions}}</td></tr>
+{{/if}}
+{{#if entries.denominator_exclusions}}
+<tr><td> Denominator Exclusions </td><td>{{entries.denominator_exclusions}}</td></tr>
+{{/if}}
+{{#if entries.numerator_exclusions}}
+<tr><td> Numerator Exclusions </td><td>{{entries.numerator_exclusions}}</td></tr>
+{{/if}}
+{{#if entries.measure_population}}
+<tr><td> Measure population </td><td>{{entries.measure_population}}</td></tr>
+{{/if}}
+{{#if entries.measure_population_exclusions}}
+<tr><td> Measure population Exclusions </td><td>{{entries.measure_population_exclusions}}</td></tr>
+{{/if}}
+{{#if entries.measure_observation}}
+<tr><td> Measure Observation </td><td>{{entries.measure_observation}}</td></tr>
+{{/if}}
+</table>
+{{/if}}
+
+<h4>Terminology</h4>
+<table class = "table ">
+{{#each entries.terminology}}
+<tr><td>{{this}}</td></tr>
+{{/each}}
+</table>
+<h4>Data Criteria</h4>
+<table class = "table">
+{{#each entries.data_criteria}}
+<tr><td>{{this}}</td></tr>
+{{/each}}
+</table>
+<h4>Definition</h4>
+{{#if entries.definition}}
+<table class = "table" style = "white-space: pre">
+{{{entries.definition}}}
+</table>
+{{/if}}

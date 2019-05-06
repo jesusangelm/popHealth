@@ -84,6 +84,9 @@ PopHealth::Application.routes.draw do
       resource :caches do
         collection do
           get :count
+          get :spinner
+          #get :static_measure
+          get 'static_measure/:id', :to => :static_measure
         end
       end
       resource :patients do

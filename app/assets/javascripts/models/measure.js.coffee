@@ -83,3 +83,12 @@ class SubCollection extends Thorax.Collection
     @effectiveDate = @parent?.effectiveDate
     @effectiveStartDate = @parent?.effectiveStartDate
   comparator: 'sub_id'
+
+class Thorax.Models.Staticmeasure extends Thorax.Model
+  idAttribute: 'id'
+  url: -> "api/admin/caches/static_measure/#{@get('id')}"
+  parse: (attrs) ->
+    attrs
+
+class Thorax.Collections.StatCollection extends Thorax.Collection
+  model: Thorax.Models.Staticmeasure

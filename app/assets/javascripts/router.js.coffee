@@ -40,14 +40,16 @@ class PopHealth.Router extends Backbone.Router
       view.activateTeamListView()
    
   measure: (id, subId, providerId) ->
-    measure = @categories.findMeasure(id)
+    staticmeasure = @categories.findStaticmeasure(id, subId)
     submeasure = @categories.findSubmeasure(id, subId)
     currentView = @view.getView()
     unless currentView instanceof Thorax.Views.MeasureView and currentView.measure is submeasure
       currentView = new Thorax.Views.MeasureView submeasure: submeasure, viewType: 'logic', provider_id: providerId
       @view.setView currentView
-    currentView.activateLogicView()
+    view = new Thorax.Views.StaticmeasureView staticmeasure: staticmeasure, subId: subId, providerId: providerId
+    currentView.setView view
 
+    
   patientResultsForMeasure: (id, subId, providerId) ->
     submeasure = @categories.findSubmeasure(id, subId)
     currentView = @view.getView()

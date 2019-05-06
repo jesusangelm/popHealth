@@ -6,9 +6,13 @@
     <tr><td>patients loaded: </td>
       <td>
         <span id="patient_count"><%= @patient_count %></span> patients
+        <%= image_tag "load.png", :id => "loadingPatient", 'class' => 'loader'%>
       </td>
       <td>
         <%= button_to "Delete Patients", "/admin/remove_patients", 'method' => 'delete', 'class' => 'btn btn-danger'%>
+      </td>
+      <td >
+        
       </td>
     </tr>
     <tr><td colspan="2">&nbsp;</td></tr>
@@ -99,6 +103,20 @@
           $('#patient_count').html(data.patient_count);
           //Setup the next poll recursively
           poll();
+        });
+      }, 5000);
+    })();
+
+    (function loader(){
+       setTimeout(function(){
+        $.getJSON( "<%= spinner_api_admin_caches_path %>", function(data){
+          console.log(data);
+          if(data.spinner_stat >0){
+            $('#loadingPatient').addClass('loaderspin');
+          }else{
+            $('#loadingPatient').removeClass('loaderspin');
+          }
+          loader();
         });
       }, 5000);
     })();

@@ -139,5 +139,5 @@ class Thorax.Views.MeasureView extends Thorax.LayoutView
   
   teamMeasuresIsActive: -> if view = @getView() then view instanceof Thorax.Views.TeamMeasuresView else @viewType is 'team_measures'
 
-  logicIsActive: -> if view = @getView() then view instanceof Thorax.Views.LogicView else @viewType is 'logic'
+  logicIsActive: -> if view = @getView() then view instanceof Thorax.Views.StaticmeasureView else @viewType is 'logic'
   patientResultsIsActive: -> if view = @getView() then view instanceof Thorax.Views.PatientResultsLayoutView else @viewType is 'patient_results'
