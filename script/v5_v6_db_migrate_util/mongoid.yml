@@ -1,0 +1,6 @@
+production:
+  clients:
+    default:
+      database: pophealth-production
+      hosts:
+        - localhost:27017
