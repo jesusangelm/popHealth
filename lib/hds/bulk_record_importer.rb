@@ -216,25 +216,23 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
   end
   def self.checkdedup(qdm_patient, practice_id=nil)
     mrn = qdm_patient.extendedData['medical_record_number']
-    mrn_p = (practice_id)? mrn + "_pid_" + practice_id : ''
-
-    if practice_id
-      existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn_p).first
-    else
-      existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn).first
-    end
+    existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn).first
     if existing
-      existing.update_attributes!(qdm_patient.attributes.except('_id', 'extendedData.medical_record_number', 'practice_id'))
-      existing = self.update_dataelements(existing, qdm_patient)
+      existing.update_attributes!(qdm_patient.attributes.except("_id", "extendedData", "practice_id", "dataElements"))
+      existing.extendedData.update(qdm_patient.extendedData.except("medical_record_number"))
+      existing = self.update_dataelements(existing, qdm_patient, mrn)
       existing
     else
       qdm_patient
     end
   end
 
-  def self.update_dataelements(existing, incoming)
+  def self.update_dataelements(existing, incoming, mrn)
     incoming.dataElements.each do |de|
       query={}
+      section = "dataElements"
+      query = {'extendedData.medical_record_number': mrn, section => {'$elemMatch' => {}}}
+
       if de["_type"]
         query["_type"] = de["_type"]
       end
@@ -243,9 +241,13 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
         query["relevantPeriod.low"] = de["relevantPeriod"][:low] if de["relevantPeriod"][:low]
         query["relevantPeriod.high"] = de["relevantPeriod"][:high] if de["relevantPeriod"][:high]
       end
+      
+      if de["dataElementCodes"]
+        query[section]['$elemMatch']['dataElementCodes'] = de['dataElementCodes']
+      end
 
       is_available = existing.dataElements.where(query).first
-      if !is_available
+      if is_available == nil
         existing.dataElements.push(de)
       end    
     end
