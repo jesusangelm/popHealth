@@ -315,9 +315,9 @@ module Api
         }
         # new let page recalc
         QDM::IndividualResult.delete_all
-        convert_measure_id = HealthDataStandards::CQM::Measure.where("_id" => params[:id]).first
+        #convert_measure_id = HealthDataStandards::CQM::Measure.where("_id" => params[:id]).first
         # force recalculate has no effect if the patients are cached !!!!!!!!!!!!!!
-        QME::QualityReport.where({measure_id: convert_measure_id.hqmf_id}).each do |qc|
+        QME::QualityReport.where({measure_id: params[:id]}).each do |qc|
           # updating nested attributes in Mongoid appears lame
           qc.delete #update_attribute(:status, {:state => nil, :log => ''})
         end
