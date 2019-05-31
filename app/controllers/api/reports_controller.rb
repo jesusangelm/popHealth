@@ -101,7 +101,7 @@ module Api
       measures=HealthDataStandards::CQM::Measure.where(:cms_id => params[:cmsid]).to_a
       patients=[]
       QDM::IndividualResult.where('extendedData.hqmf_id' => measures[0]['hqmf_id']).each do |pc|
-        if !pc['extendedData.manual_exclusion']
+        if !pc['extendedData.manual_exclusion'] && pc['IPP'] > 0
           p = QDM::Patient.find(pc['patient_id'])
           authorize! :read, p
           begin
