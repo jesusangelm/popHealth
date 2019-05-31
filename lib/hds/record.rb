@@ -30,6 +30,7 @@ class Record
     mrn_p = (practice_id)? mrn + "_pid_" + practice_id : ''
     if practice_id
       existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn_p).first
+      data.medical_record_number = mrn_p if existing
     else
       existing = QDM::Patient.where(:"extendedData.medical_record_number" => mrn).first
     end
