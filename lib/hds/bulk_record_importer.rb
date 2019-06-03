@@ -228,25 +228,26 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
   end
 
   def self.update_dataelements(existing, incoming, mrn)
+
     incoming.dataElements.each do |de|
       query={}
       section = "dataElements"
       query = {'extendedData.medical_record_number': mrn, section => {'$elemMatch' => {}}}
 
       if de["_type"]
-        query["_type"] = de["_type"]
+        query[section]['$elemMatch']["_type"] = de["_type"]
       end
 
       if de["relevantPeriod"]
-        query["relevantPeriod.low"] = de["relevantPeriod"][:low] if de["relevantPeriod"][:low]
-        query["relevantPeriod.high"] = de["relevantPeriod"][:high] if de["relevantPeriod"][:high]
+        query[section]['$elemMatch']["relevantPeriod.low"] = de["relevantPeriod"][:low] if de["relevantPeriod"][:low]
+        query[section]['$elemMatch']["relevantPeriod.high"] = de["relevantPeriod"][:high] if de["relevantPeriod"][:high]
       end
       
       if de["dataElementCodes"]
         query[section]['$elemMatch']['dataElementCodes'] = de['dataElementCodes']
       end
 
-      is_available = existing.dataElements.where(query).first
+      is_available = QDM::Patient.where(query).first
       if is_available == nil
         existing.dataElements.push(de)
       end    
