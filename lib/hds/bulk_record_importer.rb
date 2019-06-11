@@ -212,6 +212,7 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
     qdm_patient.save!
     rescue Exception => e
       puts e.message
+      Delayed::Worker.logger.info(e.message)
     end
   end
   def self.checkdedup(qdm_patient, practice_id=nil)
