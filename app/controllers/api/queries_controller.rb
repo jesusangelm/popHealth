@@ -309,7 +309,7 @@ module Api
         #QueriesController.generate_qrda1_zip(zipfilepath, mrns, current_user)
         QDM::IndividualResult.not_in("extendedData.medical_record_number" => mrns).each { |pc|
           val = pc['extendedData']
-          ManualExclusion.find_or_create_by(:measure_id => pc['measure_id'], :sub_id => pc['sub_id'],
+          ManualExclusion.find_or_create_by(:measure_id => pc['measure_id'], :sub_id => val['sub_id'],
                                             :medical_record_id => val['medical_record_number'],
                                             :rationale => namekey, :user => current_user['_id'])
         }
