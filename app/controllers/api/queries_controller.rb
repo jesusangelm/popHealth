@@ -167,12 +167,13 @@ module Api
       options[:effective_date] = end_date
       options[:test_id] = rp._id
       begin
-        #, "filters.providers" => {'$in': params[:providers]}
-        qc = QME::QualityReport.where('measure_id' => params[:measure_id], 'effective_date' => options[:effective_date],'start_date' => options[:start_date], 'sub_id' => params[:sub_id]).first
+        qc = QME::QualityReport.where('measure_id' => params[:measure_id], 'effective_date' => options[:effective_date],'start_date' => options[:start_date], 'sub_id' => params[:sub_id], "filters.providers" => {'$in': params[:providers]}).first
         if qc
           puts "calculation is already available in cache"
           render json: qc
         else
+          QME::QualityReport.where('measure_id' => params[:measure_id], 'sub_id' => params[:sub_id]).destroy_all
+          QDM::IndividualResult.where('extendedData.hqmf_id' => params[:measure_id], 'extendedData.sub_id' => params[:sub_id]).destroy_all
           providers = params[:providers]
           QDM::Patient.all.each do |p|
             pdata = JSON.parse(p.extendedData["provider_performances"]).select{|pid| pid["provider_id"] == providers.first}
