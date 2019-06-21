@@ -137,9 +137,11 @@ class Thorax.Views.DashboardSubmeasureView extends Thorax.View
       # TODO when we upgrade to Thorax 3, use `getQueryForProvider`
       query = @model.get('query')
       unless query.isPopulated()
+        @$(".loader").show()
         @$el.fadeTo 'fast', 0.5
         @listenTo query, 'change:status', =>
           if query.isPopulated()
+            @$(".loader").hide()
             @$el.fadeTo 'fast', 1
             @stopListening query, 'change:status'
   context: ->
