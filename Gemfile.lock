@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/OSEHRA/cqm-converter.git
-  revision: 88d16342fe3041344e948b023f9a9e86d8187da7
+  revision: 2365c85b9a15f2bcc689599e4e637edaa3364d08
   branch: master
   specs:
     cqm-converter (0.3.7)
