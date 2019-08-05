@@ -72,7 +72,7 @@ class Thorax.Models.Submeasure extends Thorax.Model
       attrs[population.type].parent = this
     attrs
   getQueryForProvider: (providerId) ->
-    query = @queries[providerId] or new Thorax.Models.Query({measure_id: @get('id'), sub_id: @get('sub_id'), effective_date: @effectiveDate, effective_start_date: @effectiveStartDate, providers: [providerId]}, parent: this)
+    query = @queries[providerId] or new Thorax.Models.Query({measure_id: @get('hqmf_id'), sub_id: @get('sub_id'), effective_date: @effectiveDate, effective_start_date: @effectiveStartDate, providers: [providerId]}, parent: this)
     @queries[providerId] ?= query
 
 
