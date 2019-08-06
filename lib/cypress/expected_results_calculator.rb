@@ -19,7 +19,7 @@ module Cypress
       ps_map[patient_id]['SEX'] = patient.get_by_hqmf_oid('2.16.840.1.113883.10.20.28.3.55')[0].dataElementCodes[0]['code']
       ps_map[patient_id]['RACE'] = patient.get_by_hqmf_oid('2.16.840.1.113883.10.20.28.3.59')[0].dataElementCodes[0]['code']
       ps_map[patient_id]['ETHNICITY'] = patient.get_by_hqmf_oid('2.16.840.1.113883.10.20.28.3.56')[0].dataElementCodes[0]['code']
-      ps_map[patient_id]['PAYER'] = JSON.parse(patient.extendedData['insurance_providers']).first['codes']['SOP'].first
+      ps_map[patient_id]['PAYER'] = JSON.parse(patient.extendedData['insurance_providers']).first['codes']['SOP'].first if patient.extendedData['insurance_providers'] != "[]"
     end
 
     def aggregate_results_for_measures(measures)
