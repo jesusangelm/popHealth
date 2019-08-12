@@ -7,6 +7,11 @@ class Thorax.Views.PatientResultsLayoutView extends Thorax.LayoutView
   changeFilter: (population) ->
     if currentView = @getView()
       currentView.retain() # don't destroy child views until the layout view is destroyed
+    if @views[population]
+      sub_id_stored = @views[population].query.attributes['sub_id']
+      sub_id_query = @query.attributes['sub_id']
+      if sub_id_stored != sub_id_query
+        @views[population] = new Thorax.Views.PatientResultsView(population: population, query: @query, providerId: @providerId)
     @views[population] ||= new Thorax.Views.PatientResultsView(population: population, query: @query, providerId: @providerId)
     @setView @views[population]
   setQuery: (query) ->
