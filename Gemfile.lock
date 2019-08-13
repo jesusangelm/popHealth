@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/OSEHRA/health-data-standards.git
-  revision: f2ac8bb6aba7625a4f1a33abf3f8538dca3dc5bc
+  revision: e683ea3d2f5cfe7717e54f045898fe532c238e37
   branch: r5
   specs:
     health-data-standards (4.0.3)
