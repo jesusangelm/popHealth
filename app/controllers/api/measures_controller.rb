@@ -1,6 +1,13 @@
 require 'measures/loader.rb'
 require 'hds/measure.rb'
 module Api
+  
+  class LightMeasureSerializer
+    include ActiveModel::Serialization    
+        attr_accessor :_id, :name, :category, :hqmf_id, :type, :cms_id, :nqf_id, :hqmf_set_id, :hqmf_version_number, :sub_id, :subtitle, :description
+    
+  end
+  
   class MeasuresController < ApplicationController
     resource_description do
       short 'Measures'
@@ -14,6 +21,37 @@ module Api
     before_filter :set_pagination_params, :only=> :index
     before_filter :create_filter , :only => :index
     before_filter :update_metadata_params, :only => :update_metadata
+    
+    
+    api :GET, "/measureslight", "Get a list of measures light"
+    param_group :pagination, Api::PatientsController
+    def measureslight
+      log_api_call LogAction::VIEW, "View list of measures"
+      
+      measures = HealthDataStandards::CQM::Measure.where(@filter)
+ 
+      measLight = Array.new
+
+      measures.each do |item|
+        p = LightMeasureSerializer.new
+        p._id = item._id
+        p.name = item.name
+        p.category = item.category 
+        p.hqmf_id = item.hqmf_id
+        p.type = item.type
+        p.cms_id = item.cms_id
+        p.nqf_id = item.nqf_id
+        p.hqmf_set_id = item.hqmf_set_id
+        p.hqmf_version_number = item.hqmf_version_number
+        p.sub_id = item.sub_id
+        p.subtitle = item.subtitle
+        p.description = item.description
+
+        measLight << p
+      end
+     
+       render json: measLight
+    end
 
     api :GET, "/measures", "Get a list of measures"
     param_group :pagination, Api::PatientsController
