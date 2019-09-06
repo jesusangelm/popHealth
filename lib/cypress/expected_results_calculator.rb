@@ -94,7 +94,9 @@ module Cypress
       qco['status']['state'] = "completed"
       qco['supplemental_data'] = qco['result']['supplemental_data']
       qco['filters'] = @filters
-      Mongoid.default_client['query_cache'].insert_one(qco)
+      qco_saved = Mongoid.default_client['query_cache'].insert_one(qco)
+      qco["_id"] = qco_saved.inserted_id.to_s
+      qco_saved
     end
 
     private
