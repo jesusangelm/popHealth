@@ -73,6 +73,7 @@ class BulkRecordImporter < HealthDataStandards::Import::BulkRecordImporter
 
   def self.import(xml_data, provider_map = {}, practice_id=nil)
     doc = Nokogiri::XML(xml_data)
+    @hds_record_converter = CQM::Converter::HDSRecord.new
 
     providers = []
     root_element_name = doc.root.name
