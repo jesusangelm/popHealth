@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/OSEHRA/cqm-converter.git
-  revision: 7b1305c601201ef90194686cc6c5559194450b57
+  revision: 9111d4d9d96143bfab61c68b8e9ac5cf6a8e249d
   branch: master
   specs:
     cqm-converter (0.3.7)
@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/OSEHRA/health-data-standards.git
-  revision: 57f4fb73f700919a0f362fc46d45c958a5fb0130
+  revision: 0c9076a4e9939fcd801e69faa784048b769562c4
   branch: r5
   specs:
     health-data-standards (4.0.3)
