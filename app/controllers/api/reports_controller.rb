@@ -359,16 +359,22 @@ module Api
 
     def cat1
       log_api_call LogAction::EXPORT, "QRDA Category 1 report", true
-      exporter = HealthDataStandards::Export::Cat1.new 'r3_1'
-      patient = Record.find(params[:id])
-      authorize! :read, patient
+      exporter = HealthDataStandards::Export::Cat1.new 'r5'
+      qdm_patient_converter = CQM::Converter::QDMPatient.new
+      p = QDM::Patient.where("extendedData.medical_record_number" => params[:id]).first
+      authorize! :read, p
+      begin
+          @hds_record = qdm_patient_converter.to_hds(p)
+          rescue Exception => e
+                puts e.message
+      end
       measure_ids = params["measure_ids"].split(',')
       measures = HealthDataStandards::CQM::Measure.where(:hqmf_id.in => measure_ids)
       end_date = params["effective_date"] || current_user.effective_date || Time.gm(2015, 12, 31)
       start_date = params["effective_start_date"] || current_user.effective_start_date || end_date.years_ago(1)
       end_date = end_date.to_i
       start_date = start_date.to_i
-      render xml: exporter.export(patient, measures, start_date, end_date)
+      render xml: exporter.export(@hds_record, measures, start_date, end_date)
     end
 
 
