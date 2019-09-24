@@ -74,10 +74,12 @@ module Cypress
     end
 
     def add_or_increment_code(pop, sup_type, code, single_measure_result_hash)
-      if single_measure_result_hash['supplemental_data'][pop][sup_type][code]
-        single_measure_result_hash['supplemental_data'][pop][sup_type][code] += 1
-      else
-        single_measure_result_hash['supplemental_data'][pop][sup_type][code] = 1
+      if code
+        if single_measure_result_hash['supplemental_data'][pop][sup_type][code]
+         single_measure_result_hash['supplemental_data'][pop][sup_type][code] += 1
+        else
+         single_measure_result_hash['supplemental_data'][pop][sup_type][code] = 1
+        end
       end
     end
 
