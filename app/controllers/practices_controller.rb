@@ -96,6 +96,17 @@ class PracticesController < ApplicationController
   def remove_patients
     log_controller_call LogAction::DELETE, "Remove all patients for practice", true
     Record.where(practice_id: params[:id]).delete
+    practice = Practice.find(params[:id])
+    if practice  
+      provider_id = practice.provider_id.to_s  
+      QDM::Patient.all.each do |p|        
+        pdata = JSON.parse(p.extendedData["provider_performances"]).select{|pid| pid["provider_id"] == provider_id}
+        if pdata.present?
+          QDM::IndividualResult.where(patient_id:p._id.to_s).delete
+          p.delete()
+        end
+      end
+     end
     respond_to do |format|
       format.html { redirect_to :action => :index }
     end
