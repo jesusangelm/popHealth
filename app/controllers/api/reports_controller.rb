@@ -48,8 +48,14 @@ module Api
         fname=fname+'qrda_cat3.xml'
         filter = measure_ids=="all" ? {} : {:hqmf_id.in => measure_ids}
         bndl = (b = HealthDataStandards::CQM::Bundle.all.sort(:version => :desc).first) ? b.version : 'n/a'
-        cat3ver='r2_1'
-        
+        cat3ver = nil
+        case program
+        when 'MIPS'
+            cat3ver='r2_1/ep'
+            @cms_program = practice  ? 'MIPS_GROUP': 'MIPS_INDIV'
+        when 'NONE'
+           cat3ver='r2_1'
+        end
         exporter = HealthDataStandards::Export::Cat3.new(cat3ver)
         effective_date = params["effective_date"] || current_user.effective_date || Time.gm(2019, 12, 31)
         effective_start_date = params["effective_start_date"] || current_user.effective_start_date || Time.gm(2018, 12, 31)
@@ -407,8 +413,7 @@ module Api
       header.authors.each { |a| a.time = Time.now }
       header.legal_authenticator.time = Time.now
       header.performers = providers
-      #header.information_recipient.identifier.extension = @cms_program
-
+      header.information_recipient.identifier.extension = @cms_program
       header
     end
   end
