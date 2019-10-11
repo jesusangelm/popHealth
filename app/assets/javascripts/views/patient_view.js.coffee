@@ -31,7 +31,7 @@ class Thorax.Views.PatientView extends Thorax.View
     return measures
 
   # Helper function for date/time conversion
-  formatTime = (time, format) -> moment(time).format(format) if time
+  formatTime = (time, format) -> moment(time).utc().format(format) if time
 
 class Thorax.Views.EntryView extends Thorax.View
   context: ->
