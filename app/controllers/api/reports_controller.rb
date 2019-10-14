@@ -52,7 +52,7 @@ module Api
         case program
         when 'MIPS'
             cat3ver='r2_1/ep'
-            @cms_program = practice  ? 'MIPS_GROUP': 'MIPS_INDIV'
+            @cms_program = practice ? 'MIPS_GROUP': 'MIPS_INDIV'
         when 'NONE'
            cat3ver='r2_1'
         end
