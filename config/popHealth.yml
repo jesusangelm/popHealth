@@ -36,7 +36,7 @@ defaults: &defaults
   show_measure_baseline_report: false
 
   # Enable/disable csrf for API by default is true
-  enable_csrf_for_apis: true
+  enable_csrf_for_apis: false
 
   # Define the ranges to color-code the provider's results in the baseline report
   measure_baseline_ranges:

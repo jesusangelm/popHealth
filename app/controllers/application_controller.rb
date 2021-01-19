@@ -1,8 +1,17 @@
 class ApplicationController < ActionController::Base
   include LogsHelper
-
-  APP_CONFIG['enable_csrf_for_apis'] ? (protect_from_forgery :with => :exception) :
-                                       (protect_from_forgery unless: -> { request.format.json? })
+  protect_from_forgery with: :null_session
+=begin
+  if APP_CONFIG['enable_csrf_for_apis']
+    puts "in if "
+    protect_from_forgery :with => :exception
+  else
+    puts "in else is the request format is json?"
+    protect_from_forgery with: :exception, unless: -> { request.format.json? || request.format.xml? || request.format.html?} 
+    #unless: -> { request.format.json? }
+    #
+  end
+=end 
   layout :layout_by_resource
   before_action :check_ssl_used
 

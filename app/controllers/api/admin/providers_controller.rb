@@ -8,6 +8,8 @@ module Api
         description "This resource allows for administrative tasks to be performed on providers via the API."
       end
       include LogsHelper
+      protect_from_forgery except: [:create, :destroy]
+
       before_action :authenticate_user!
       before_action :validate_authorization!
 

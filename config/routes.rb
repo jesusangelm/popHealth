@@ -36,7 +36,7 @@ PopHealth::Application.routes.draw do
   delete "/api/admin/patients/deletePatientsFromPractice"
   get "/api/measures/measureslight"
 
-  put 'admin/patient', :to => 'admin/patients#upload_single_patient'
+  put '/api/admin/patient', :to => 'api/admin/patients#upload_single_patient'
 
 
 
@@ -84,16 +84,16 @@ PopHealth::Application.routes.draw do
     resources :teams
 
     namespace :admin do
-=begin
+
       resource :caches do
         collection do
           get :count
-          get :spinner
+          #get :spinner
           #get :static_measure
-          get 'static_measure/:id', :to => :static_measure
+          #get 'static_measure/:id', :to => :static_measure
         end
       end
-=end
+
       resource :patients do
         collection do
           get :count

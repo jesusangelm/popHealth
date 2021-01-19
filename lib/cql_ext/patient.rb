@@ -165,7 +165,17 @@ module CQM
         end
       end
     end
+    def cache_results(params = {})
+      query = {"extendedData.medical_record_number" => self._id.to_s }
+      query["extendedData.effective_date"]= params["effective_date"] if params["effective_date"]
+      #query["extendedData.effective_start_date"]= params["effective_start_date"] if params["effective_start_date"]
+      query["extendedData.hqmf_id"]= params["measure_id"] if params["measure_id"]
+      #query["value.sub_id"]= params["sub_id"] if params["sub_id"]
+      Delayed::Worker.logger.info("*********** what is the results query ***************")
+      Delayed::Worker.logger.info(query)
 
+      CQM::IndividualResult.where(query)
+    end
     # Return true if the patient is relevant for one of the population keys in one of the measures passed in
     def patient_relevant?(measure_ids, population_keys)
       measure_relevance_hash.any? do |measure_key, mrh|

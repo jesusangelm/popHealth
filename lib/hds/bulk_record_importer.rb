@@ -57,7 +57,10 @@ class BulkRecordImporter
       else
         self.import(data, {}, practice)
       end
-    rescue
+    rescue Exception => e
+      Delayed::Worker.logger.info(e.message)
+      Delayed::Worker.logger.info(e.backtrace.inspect)
+
       FileUtils.mkdir_p(File.dirname(File.join(failed_dir,name)))
       File.open(File.join(failed_dir,name),"w") do |f|
         f.puts(data)
@@ -75,6 +78,7 @@ class BulkRecordImporter
     #@hds_record_converter = CQM::Converter::HDSRecord.new
 
     providers = []
+    
     root_element_name = doc.root.name
     if root_element_name == 'ClinicalDocument'
       doc.root.add_namespace_definition('cda', 'urn:hl7-org:v3')
@@ -87,7 +91,7 @@ class BulkRecordImporter
         begin
 
           patient_data = QRDA::Cat1::PatientImporter.instance.parse_cat1(doc)
-          Delayed::Worker.logger.info(patient_data.qdmPatient.dataElements)
+          #Delayed::Worker.logger.info(patient_data.qdmPatient.dataElements)
           patient_data = self.update_address(patient_data, doc)
           patient_data.bundleId = Bundle.all.first.id
           bundle = Bundle.all.first
