@@ -48,22 +48,44 @@ module Api
     param :include_results, String, :desc => "Include measure calculation results", :required => false
     example '{"_id":"52fbbf34b99cc8a728000068","birthdate":1276869600,"first":"John","gender":"M","last":"Peters","encounters":[{...}], ...}'
     def show
+      Delayed::Worker.logger.info("**************Patient Show************")
       json_methods = [:language_names]
+      Delayed::Worker.logger.info(json_methods)
       json_methods << :cache_results if params[:include_results]
-      json = @hds_record.as_json({methods: json_methods})
-      json["race"]["name"] = race(@hds_record) if json["race"]
-      json["ethnicity"]["name"] = ethnicity(@hds_record) if json["ethnicity"]
-      provider_list = @hds_record.provider_performances.map{ |p| p.provider}
-      provider_list.each do |prov|
-        if prov
-          if prov.leaf?
-            json['provider_name'] = prov.given_name
-          end
-        end
-      end
-      if results = json.delete('cache_results')
-        json['measure_results'] = results_with_measure_metadata(results)
-      end
+      Delayed::Worker.logger.info(json_methods)
+      json = @patient.as_json({methods: json_methods})
+      Delayed::Worker.logger.info("************** JSON obj 1 ************")
+      Delayed::Worker.logger.info(json)
+      json["race"]["name"] = race(@patient) if json["race"]
+      Delayed::Worker.logger.info("************** JSON obj 2 ************")
+      Delayed::Worker.logger.info(json)
+      json["ethnicity"]["name"] = ethnicity(@patient) if json["ethnicity"]
+      Delayed::Worker.logger.info("************** JSON obj 3 ************")
+      Delayed::Worker.logger.info(json)
+      #provider_list = []
+      #@patient.qdmPatient.extendedData.provider_performances.each do |prov|
+        #provider_id = JSON.parse(prov).select{|pid| pid["provider_id"]}
+        #Delayed::Worker.logger.info(provider_id)
+        #provider_list << provider_id
+      #end
+
+      #provider_list.each do |prov|
+        #if prov
+          
+          #Delayed::Worker.logger.info(prov)
+            #provider = CQM::Provider.find(prov)
+            provider_id = @patient.provider_ids.first
+            provider = Provider.find(provider_id)
+            Delayed::Worker.logger.info("*************** provider ")
+            Delayed::Worker.logger.info(provider)
+            if provider
+            json['provider_name'] = provider.givenNames
+            end
+        #end
+      #end
+      #if results = json.delete('cache_results')
+        #json['measure_results'] = results_with_measure_metadata(results)
+      #end
       #log_api_call LogAction::VIEW, 'Patient record viewed', true
       render :json => json
     end
@@ -149,10 +171,11 @@ module Api
 
     def results_with_measure_metadata(results)
       results.to_a.map do |result|
-        hqmf_id = result['value']['measure_id']
-        sub_id = result['value']['sub_id']
-        measure = CQM::Measure.where("hqmf_id" => hqmf_id, "sub_id" => sub_id).only(:title, :subtitle, :name).first
-        result['value'].merge(measure_title: measure.title, measure_subtitle: measure.subtitle)
+        hqmf_id = result['extendedData']['hqmf_id']
+        #sub_id = result['value']['sub_id']
+        measure = CQM::Measure.where("hqmf_id" => hqmf_id).only(:title, :description).first
+        result['extendedData'].merge(measure_title: measure.title, measure_subtitle: measure.description)
+        result
       end
     end
   end

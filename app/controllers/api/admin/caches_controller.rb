@@ -8,6 +8,8 @@ module Api
         description "This resource allows for administrative tasks to be performed on the cache via the API."
       end
       include LogsHelper
+      protect_from_forgery except: [:destroy]
+
       before_action :authenticate_user!
       before_action :validate_authorization!
 
@@ -16,19 +18,19 @@ module Api
       def count
         log_admin_api_call LogAction::VIEW, "Count of caches"
         json = {}
-        json['query_cache_count'] = HealthDataStandards::CQM::QueryCache.count
-        json['patient_cache_count'] = QDM::IndividualResult.count
+        json['query_cache_count'] = CQM::QualityReport.count
+        json['patient_cache_count'] = CQM::IndividualResult.count
         render :json => json
       end
 
-      api :GET, "/admin/caches/spinner", "Return spinner status"
+      #api :GET, "/admin/caches/spinner", "Return spinner status"
       def spinner
         json = {}
         json['spinner_stat'] = Delayed::Job.where(queue: "patient_import").count
         render :json => json
       end
 
-      api :GET, "/admin/caches/staticmeasures", "Return static measure"
+      #api :GET, "/admin/caches/staticmeasures", "Return static measure"
       def static_measure
         measure_definition = nil
         cql_element = nil
@@ -49,9 +51,9 @@ module Api
       api :DELETE, "/admin/caches", "Empty all caches in the database."
       def destroy
         log_admin_api_call LogAction::DELETE, "Empty all caches"
-        HealthDataStandards::CQM::QueryCache.delete_all
-        QDM::IndividualResult.delete_all
-        render status: 200, text: 'Server caches have been emptied.'
+        CQM::QualityReport.delete_all
+        CQM::IndividualResult.delete_all
+        render status: 200, plain: 'Server caches have been emptied.'
       end
 
       private 

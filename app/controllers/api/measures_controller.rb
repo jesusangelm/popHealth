@@ -23,7 +23,7 @@ module Api
     before_action :update_metadata_params, :only => :update_metadata
     
     
-    api :GET, "/measureslight", "Get a list of measures light"
+    #api :GET, "/measureslight", "Get a list of measures light"
     param_group :pagination, Api::PatientsController
     def measureslight
       log_api_call LogAction::VIEW, "View list of measures"
@@ -58,7 +58,11 @@ module Api
     def index
       log_api_call LogAction::VIEW, "View list of measures"
       measures = Measure.where(@filter)
-      render json: paginate(api_measures_url, measures), each_serializer: HealthDataStandards::CQM::MeasureSerializer
+      #m = Measure.first
+      #Delayed::Worker.logger.info("************** what is M **************")
+      #Delayed::Worker.logger.info(m)
+      render json: measures
+      #paginate(api_measures_url, measures), each_serializer: HealthDataStandards::CQM::MeasureSerializer
     end
 
     api :GET, "/measures/:id", "Get an individual clinical quality measure"
