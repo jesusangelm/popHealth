@@ -7,6 +7,8 @@ module CQM
     field :original_medical_record_number, type: String
     field :medical_record_number, type: String
     field :measure_relevance_hash, type: Hash, default: {}
+    field :code_description_hash, type: Hash, default: {} # may contain extra code descriptions for original codes
+    field :reported_measure_hqmf_ids, type: Array, default: []
     embeds_many :addresses # patient addresses
     embeds_many :telecoms
 
@@ -43,7 +45,9 @@ module CQM
     def bundle
       if !self['bundleId'].nil?
         Bundle.find(self['bundleId'])
-      elsif !correlation_id.nil?
+      elsif self['_type'] == 'CQM::TestExecutionPatient'
+        TestExecution.find(correlation_id).task.bundle
+      elsif self['_type'] == 'CQM::ProductTestPatient'
         ProductTest.find(correlation_id).bundle
       end
     end
@@ -131,6 +135,69 @@ module CQM
         ethnicity_element.first.dataElementCodes.first['code']
       end
     end
+    # Iterates through each data element to add
+    # 1. A Relevant DateTime if a Relevant Period is specified
+    # 2. A Relevant Period if a Relevant DateTime is specified
+    # This is used to normalize for eCQM calculations that may use one or the other
+    # The denormalize_as_datetime flag is used by the "denormalize_date_times" to return the record to the original state
+    def normalize_date_times
+      qdmPatient.dataElements.each do |de|
+        next unless de.respond_to?(:relevantDatetime) && de.respond_to?(:relevantPeriod)
+
+        if de.relevantDatetime
+          de.relevantPeriod = QDM::Interval.new(de.relevantDatetime, de.relevantDatetime).shift_dates(0)
+          de.denormalize_as_datetime = true
+        elsif de.relevantPeriod
+          # if low time exists, use it.  Otherwise high time
+          de.relevantDatetime = de.relevantPeriod.low || de.relevantPeriod.high
+          de.denormalize_as_datetime = false
+        end
+      end
+    end
+
+    # "normalize_date_times" add a flag "denormalize_as_datetime" to indicate if a dataElement originally used relevantDatetime
+    # using that flag, return record to the original state
+    def denormalize_date_times
+      qdmPatient.dataElements.each do |de|
+        next unless de.respond_to?(:relevantDatetime) && de.respond_to?(:relevantPeriod)
+
+        if de.denormalize_as_datetime
+          de.relevantPeriod = nil
+        else
+          de.relevantDatetime = nil
+        end
+      end
+      save
+    end
+
+    # when laboratory_tests and physical_exams are reported for CMS529, they need to reference the
+    # encounter they are related to.  The time range can include 24 hours before and after the encounter occurs.
+    def add_encounter_ids_to_events
+      encounter_times = {}
+      qdmPatient.get_data_elements('encounter', 'performed').each do |ep|
+        # Only use inpatient encounter
+        next if (ep.dataElementCodes.map(&:code) & bundle.value_sets.where(oid: '2.16.840.1.113883.3.666.5.307').first.concepts.map(&:code)).empty?
+
+        rel_time = ep.relevantPeriod
+        # 1 day before and 1 day after
+        rel_time.low -= 86_400
+        rel_time.high += 86_400
+        encounter_times[ep.id] = rel_time
+      end
+      qdmPatient.get_data_elements('laboratory_test', 'performed').each do |lt|
+        lt.encounter_id = encounter_id_for_event(encounter_times, lt.resultDatetime)
+      end
+      qdmPatient.get_data_elements('physical_exam', 'performed').each do |pe|
+        pe.encounter_id = encounter_id_for_event(encounter_times, pe.relevantDatetime)
+      end
+    end
+
+    def encounter_id_for_event(encounter_time_hash, event_time)
+      encounter_time_hash.each do |e_id, range|
+        return e_id if (event_time > range.low) && (event_time < range.high)
+      end
+      nil
+    end
 
     def randomize_demographics(patient, changed, random: Random.new)
       case random.rand(3) # now, randomize demographics
@@ -184,6 +251,14 @@ module CQM
         (measure_ids.include? BSON::ObjectId.from_string(measure_key)) && (population_keys.any? { |pop| mrh[pop] == true })
       end
     end
+    
+    def remove_telehealth_codes(ineligible_measures)
+      warnings = []
+      Cypress::QRDAPostProcessor.remove_telehealth_encounters(self, codes_modifiers, warnings, ineligible_measures) unless codes_modifiers.empty?
+      save
+      warnings
+    end
+
   end
 
   class BundlePatient < Patient; end

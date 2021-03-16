@@ -90,12 +90,14 @@ class BulkRecordImporter
       #elsif doc.at_xpath("/cda:ClinicalDocument/cda:templateId[@root='2.16.840.1.113883.10.20.24.1.2']")
         begin
 
-          patient_data = QRDA::Cat1::PatientImporter.instance.parse_cat1(doc)
+          patient_data, _warnings, codes  = QRDA::Cat1::PatientImporter.instance.parse_cat1(doc)
           #Delayed::Worker.logger.info(patient_data.qdmPatient.dataElements)
           patient_data = self.update_address(patient_data, doc)
           patient_data.bundleId = Bundle.all.first.id
           bundle = Bundle.all.first
+          CqlData::QRDAPostProcessor.build_code_descriptions(codes, patient_data, bundle)
           CqlData::QRDAPostProcessor.replace_negated_codes(patient_data, bundle)
+          CqlData::QRDAPostProcessor.remove_unmatched_data_type_code_combinations(patient_data, bundle)
         rescue Exception => e
           puts "UNABLE TO IMPORT PATIENT RECORD"
           puts e.message

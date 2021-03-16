@@ -1,4 +1,3 @@
-require 'hqmf-parser'
 require_relative './data_criteria_attribute_builder.rb'
 require_relative './qrda_post_processor.rb'
 require_relative 'cql_ext/individual_result.rb'
@@ -29,6 +28,7 @@ module CqlBundle
 
         unpack_and_store_valuesets(zip_file, bundle)
         unpack_and_store_measures(zip_file, bundle)
+        bundle.collect_codes_by_qdm_category
         #unpack_and_store_cqm_patients(zip_file, bundle)
         #unpack_and_store_calcuations(zip_file, bundle, tracker)
         #calculate_results(bundle, tracker, include_highlighting) unless unpack_and_store_calcuations(zip_file, bundle, tracker)

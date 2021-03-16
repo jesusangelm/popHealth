@@ -11,15 +11,12 @@ gem 'mongo'
 # gem 'mongoid', '~> 4.0.2'
 gem 'bson_ext'
 gem 'mustache'
+gem 'os'
 
-
-#gem 'cql_qdm_patientapi',git: 'https://github.com/projecttacoma/cql_qdm_patientapi.git', tag: 'v1.2.0'
-#gem 'cqm-converter', git: 'https://github.com/OSEHRA/cqm-converter.git', branch: 'master'
-
-gem 'cqm-models', '~> 2.0.0'
-gem 'cqm-parsers', '~> 2.0.0'
-gem 'cqm-reports', '~> 2.0.8'
-gem 'cqm-validators', '~> 2.0.1'
+gem 'cqm-models', '~> 3.0.1'
+gem 'cqm-parsers', '~> 3.1.1.0'
+gem 'cqm-reports', '~> 3.1.3'
+gem 'cqm-validators', '~> 3.0.1'
 
 #gem 'quality-measure-engine', git: 'https://github.com/OSEHRA/quality-measure-engine.git', branch: 'bump_mongoid_v6'
 

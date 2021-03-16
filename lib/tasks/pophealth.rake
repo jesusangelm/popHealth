@@ -89,12 +89,12 @@ namespace :pophealth do
     end
 
     while nlm_passwd.nil? || nlm_passwd == ""
-      nlm_passwd = ask("NLM Password?: "){ |q| q.echo = false
+      nlm_passwd = ask("NLM API Key?: "){ |q| q.echo = false
                                                       q.readline = true }
     end
 
     bundle_version = ENV["version"] || APP_CONFIG["default_bundle"] || "latest"
-    @bundle_name = "bundle-#{bundle_version}.1.1.zip"
+    @bundle_name = "bundle-#{bundle_version}.zip"
 
     puts "Downloading and saving #{@bundle_name} to #{measures_dir}"
     # Pull down the list of bundles and download the version we're looking for
