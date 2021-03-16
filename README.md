@@ -22,7 +22,7 @@ bower install
 Additional Information
 ----------------------
 
-Please check [our wiki](https://github.com/pophealth/popHealth/wiki) for more information.
+Please check [our wiki](https://github.com/WorldVistA/popHealth/wiki) for more information.
 
 License
 -------
