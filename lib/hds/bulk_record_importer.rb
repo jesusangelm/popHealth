@@ -257,13 +257,23 @@ class BulkRecordImporter
     demochange_pipeline << {'$match' => { '$or' => [
       {givenNames: first, familyName: last, 'addresses.street': street, 'addresses.city': city, 'addresses.state': state, 'addresses.zip': zip, 'qdmPatient.birthDatetime': dob},
       {givenNames: first, 'addresses.street': street, 'addresses.city': city, 'addresses.state': state, 'addresses.zip': zip, 'qdmPatient.birthDatetime': dob},
-      {familyName: last, 'addresses.street': street, 'addresses.city': city, 'addresses.state': state, 'addresses.zip': zip, 'qdmPatient.birthDatetime': dob}  
+      {familyName: last, 'addresses.street': street, 'addresses.city': city, 'addresses.state': state, 'addresses.zip': zip, 'qdmPatient.birthDatetime': dob},
+      {givenNames: first, familyName: last, 'addresses.street': street, 'addresses.city': city, 'addresses.state': state, 'addresses.zip': zip}   
     ]}}
     result =  db['cqm_patients'].aggregate(demochange_pipeline)
+    Delayed::Worker.logger.info("------------------------ what is the result in deduplication -------------")
+    Delayed::Worker.logger.info(result.first)
+    Delayed::Worker.logger.info("--------------------------- end ------------------ ")
 
     if result.first
       existing_patient = CQM::Patient.where("_id": result.first._id).first
-      existing_patient.update_attributes(patient_data.attributes.except("_id", "qdmPatient"))
+      begin
+        existing_patient.update_attributes(patient_data.attributes.except("_id", "qdmPatient.dataElements"))
+        existing_patient.qdmPatient.birthDatetime = patient_data.qdmPatient.birthDatetime
+      rescue Exception => e
+        puts e.message
+        Delayed::Worker.logger.info(e.message)
+      end
       #existing.update_attributes!(qdm_patient.attributes.except("_id", "extendedData", "practice_id", "dataElements"))
       #existing.extendedData.update(qdm_patient.extendedData.except("medical_record_number"))
       existing_patient = self.update_dataelements(existing_patient, patient_data)
@@ -274,15 +284,14 @@ class BulkRecordImporter
   end
 
   def self.update_dataelements(existing, incoming)
+    begin
+
     incoming.qdmPatient.dataElements.each do |de|
       Delayed::Worker.logger.info("Working on " +de["_type"]+ " Data Element")
-      if de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.59" || de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.55" || de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.56"
-        existing.qdmPatient.dataElements.map do |dataelement|
-          if dataelement["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.59"  || dataelement["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.55" || dataelement["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.56"
-            Delayed::Worker.logger.info("Replacing data element in case of Gender, Race & Ethnicity")
-            dataelement = de
-          end
-        end
+      if de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.59" || de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.55" || de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.56" || de["hqmfOid"] == "2.16.840.1.113883.10.20.28.4.54"
+        Delayed::Worker.logger.info("Replacing data element in case of #{de["_type"]} with HQMFOid #{de["hqmfOid"]}")
+        existing.qdmPatient.dataElements.delete_if{|dataelement| dataelement["hqmfOid"] == de["hqmfOid"]}
+        existing.qdmPatient.dataElements.push(de)
       else
         Delayed::Worker.logger.info("* Working on " +de["_type"]+ " Data Element *")
         query={}
@@ -316,6 +325,11 @@ class BulkRecordImporter
       end   
     end
     existing
+    rescue Exception => e
+        puts e.message
+        Delayed::Worker.logger.info("^^^^^^^^^^^^^^^^^^^^^^^^^^^^ error in deduplication assignments ^^^^^^^^^^^^^^^^^^")
+        Delayed::Worker.logger.info(e.message)
+    end
   end
 end
 
