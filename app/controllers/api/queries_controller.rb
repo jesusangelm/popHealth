@@ -212,7 +212,11 @@ module Api
             end
           end
           begin
-            qdm_patients = @patients.map(&:qdmPatient)
+            qdm_patients = @patients.map do |patient|
+                              patient.normalize_date_times
+                              patient.qdmPatient
+                           end
+            #qdm_patients = @patients.map(&:qdmPatient)
             measure = Measure.where(hqmf_id: params[:measure_id]).first
             individual_results = CQM::IndividualResult.where('measure_id' => measure._id).first
             options[:effectiveDateEnd] = Time.at(options[:effective_date]).strftime("%Y%m%d%H%M%S")
@@ -225,7 +229,7 @@ module Api
                                              options)
             Delayed::Worker.logger.info("ending Individual Result Calculation")
             result = calc_job.execute
-
+            @patients.map(&:denormalize_date_times)
           end
           rescue Exception => e
             Delayed::Worker.logger.info(e.message)

@@ -146,11 +146,11 @@ module CQM
 
         if de.relevantDatetime
           de.relevantPeriod = QDM::Interval.new(de.relevantDatetime, de.relevantDatetime).shift_dates(0)
-          de.denormalize_as_datetime = true
+          de['denormalize_as_datetime'] = true
         elsif de.relevantPeriod
           # if low time exists, use it.  Otherwise high time
           de.relevantDatetime = de.relevantPeriod.low || de.relevantPeriod.high
-          de.denormalize_as_datetime = false
+          de['denormalize_as_datetime'] = false
         end
       end
     end
