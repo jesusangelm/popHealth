@@ -1,5 +1,5 @@
 #require 'cqm/converter'
-
+require 'cqm_validators'
 require 'fileutils'
 require_relative '../cql_ext/provider_importer.rb'
 
@@ -89,9 +89,7 @@ class BulkRecordImporter
         #patient_data = HealthDataStandards::Import::CCDA::PatientImporter.instance.parse_ccda(doc)
       #elsif doc.at_xpath("/cda:ClinicalDocument/cda:templateId[@root='2.16.840.1.113883.10.20.24.1.2']")
         begin
-
           patient_data, _warnings, codes  = QRDA::Cat1::PatientImporter.instance.parse_cat1(doc)
-          #Delayed::Worker.logger.info(patient_data.qdmPatient.dataElements)
           patient_data = self.update_address(patient_data, doc)
           patient_data.bundleId = Bundle.all.first.id
           bundle = Bundle.all.first
@@ -103,6 +101,7 @@ class BulkRecordImporter
           puts e.message
           Delayed::Worker.logger.info("UNABLE TO IMPORT PATIENT RECORD")
           Delayed::Worker.logger.info(e.message)
+          Delayed::Worker.logger.info(e.backtrace)
         end 
       begin
         providers = PROV::ProviderImporter.instance.extract_providers(doc, patient_data)
