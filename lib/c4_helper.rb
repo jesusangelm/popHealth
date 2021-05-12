@@ -123,6 +123,7 @@ module C4Helper
               @options[:provider]['ids'].push( {"namingSystem" => "2.16.840.1.113883.4.6", "value" => "#{provider.npi}"})  if provider.npi
               @options[:provider]['ids'].push( {"namingSystem" => "2.16.840.1.113883.4.2", "value" => "#{provider.tin}"})  if provider.tin
               @options[:provider]['ids'].push( {"namingSystem" => "2.16.840.1.113883.4.336", "value" => "#{provider.ccn}"})  if provider.ccn
+              @options[:submission_program] = APP_CONFIG['cda_header'].information_recipient.identifier.extension if APP_CONFIG['cda_header'].information_recipient
               zout.put_next_entry(make_name(patient)+'.xml')
               zout << Qrda1R5.new(sf_patient, @measures, @options).render
             end
