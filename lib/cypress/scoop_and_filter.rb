@@ -1,3 +1,5 @@
+require_relative '../qrda_post_processor.rb'
+
 module Cypress
   class ScoopAndFilter
     def initialize(measures)
@@ -51,7 +53,7 @@ module Cypress
       replace_negated_code_with_valueset(data_element, multi_vs_negation_elements)
       # add data element valueset and other potentially relevant valueset descriptions
       codes = (multi_vs_negation_elements + [data_element]).map { |de| "#{de.dataElementCodes.first.code}:#{de.dataElementCodes.first.system}" }
-      Cypress::QRDAPostProcessor.build_code_descriptions(codes, patient, patient.bundle)
+      CqlData::QRDAPostProcessor.build_code_descriptions(codes, patient, patient.bundle)
     end
 
     def data_element_category_and_status(data_element)

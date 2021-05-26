@@ -161,10 +161,10 @@ module CQM
       qdmPatient.dataElements.each do |de|
         next unless de.respond_to?(:relevantDatetime) && de.respond_to?(:relevantPeriod)
 
-        if de.denormalize_as_datetime
-          de.relevantPeriod = nil
+        if de['denormalize_as_datetime']
+          de['relevantPeriod'] = nil
         else
-          de.relevantDatetime = nil
+          de['relevantDatetime'] = nil
         end
       end
       save
