@@ -5,14 +5,13 @@ class HomeController < ApplicationController
     # TODO base this on provider
     @patient_count = CQM::Patient.count
     @categories = Measure.categories([:lower_is_better, :reporting_program_type])
-    cats = transformcategories(@categories)
-    cats = add_populations(cats)
-    cats.each do |cat|
-      cat.measures.each do |mes|
-        mes['id'] = mes['hqmf_id']
+    updated_categories = add_populations(transformcategories(change_measure_scoring))
+    updated_categories.each do |category|
+      category.measures.each do |measure|
+        measure['id'] = measure['hqmf_id']
       end
     end 
-    cats
+    updated_categories
   end
 
   def check_authorization
@@ -33,6 +32,20 @@ class HomeController < ApplicationController
     
     render :json => :set_reporting_period, status: 200
   end
+# we are updating measure scoring to match the front end requirement for CMS529v1
+  def change_measure_scoring
+    updated_measure_scoring = @categories.each{|individual_category| 
+                if individual_category.category == "Preventive Care"
+                  individual_category.measures.each{|measures|
+                    if(measures.measure_scoring == "COHORT" )
+                      measures["measure_scoring"] = "PROPORTION"
+                    end
+                  }
+                end
+    }
+    updated_measure_scoring
+  end
+
   def transformcategories(categories)
     cats = categories
     cats.each do |singlecat|
