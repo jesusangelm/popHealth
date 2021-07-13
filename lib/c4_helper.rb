@@ -115,6 +115,9 @@ module C4Helper
             patients.each do |patient_hash|
               patient=patient_hash[:record]
               sf_patient = patient.clone
+              sf_patient.id = patient.id
+              # CMS529 requires that entries point to the ecounters that they are related to
+              sf_patient.add_encounter_ids_to_events unless (measures.map(&:hqmf_set_id) & APP_CONFIG['result_measures'].map(&:hqmf_set_id)).empty?
               patient_scoop_and_filter.scoop_and_filter(sf_patient)
               #Including Provider Details In a way CQM-Report wants it
               provider = Provider.where('_id' => patient.provider_ids[0]).first

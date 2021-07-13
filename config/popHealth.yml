@@ -61,7 +61,11 @@ defaults: &defaults
     # FOR EH PROGRAM : EH_PROGRAM
     # Specify the EH PROGRAM Code in Information Recipient Extension 
   qrda_cms_program: NONE
-
+  # These eCQMs store a list of "Results" within the statement_results of an Individual Result
+  result_measures:
+    # CMS529
+    - hqmf_set_id : 'FA75DE85-A934-45D7-A2F7-C700A756078B'
+      statement_name : 'Results'
   # Specify the types of events that you would like to record in the log
   log_to_database:
     controller: false

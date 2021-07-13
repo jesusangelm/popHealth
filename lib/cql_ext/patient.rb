@@ -173,11 +173,11 @@ module CQM
     # when laboratory_tests and physical_exams are reported for CMS529, they need to reference the
     # encounter they are related to.  The time range can include 24 hours before and after the encounter occurs.
     def add_encounter_ids_to_events
+      Delayed::Worker.logger.info("1111")
       encounter_times = {}
       qdmPatient.get_data_elements('encounter', 'performed').each do |ep|
         # Only use inpatient encounter
         next if (ep.dataElementCodes.map(&:code) & bundle.value_sets.where(oid: '2.16.840.1.113883.3.666.5.307').first.concepts.map(&:code)).empty?
-
         rel_time = ep.relevantPeriod
         # 1 day before and 1 day after
         rel_time.low -= 86_400
