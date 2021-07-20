@@ -70,35 +70,31 @@ module Cypress
     end
 
     def self.find_problem_in_records(records, value_set)
+      begin
       # go through all record diagnoses
       records.each do |r|
         # TODO: check condition sufficient?
-        r.qdmPatient.conditions.each do |c|
-          c['dataElementCodes'].each do |dec|
-            # check if snomed
-            next unless dec['codeSystemOid'] == '2.16.840.1.113883.6.96'
-
-            # check code against all valueset concepts
-            value_set['concepts'].each do |concept|
-              return true if concept['code'] == dec['code']
+        elements = [r.qdmPatient.conditions, r.qdmPatient.encounters, r.qdmPatient.procedures]
+          elements.each do |elem|
+            elem.each do |c|
+              c['dataElementCodes'].each do |dec|
+                # check if snomed
+                next unless dec['system'] == '2.16.840.1.113883.6.96'
+                # check code against all valueset concepts
+                value_set['concepts'].each do |concept|
+                  if concept['code'] == dec['code']
+                    return true 
+                  end
+                end
+              end
             end
           end
-        end
       end
       false # no record diagnosis matches a code in this valueset
-    end
-
-    def self.hqmf_oids_for_problem(problem_oid, measures)
-      measure = measures.first
-      hqmf_oids = []
-      measure.source_data_criteria.each do |criteria|
-        next unless criteria.codeListId == problem_oid
-
-        hqmf_oid = HQMF::DataCriteria.template_id_for_definition(cr_hash['definition'], cr_hash['status'], cr_hash['negation'])
-        hqmf_oid ||= HQMF::DataCriteria.template_id_for_definition(cr_hash['definition'], cr_hash['status'], cr_hash['negation'], 'r2')
-        hqmf_oids << hqmf_oid
+      rescue Exception => e
+            Delayed::Worker.logger.info(e.message)
+            Delayed::Worker.logger.info(e.backtrace.inspect)
       end
-      hqmf_oids.uniq
     end
   end
 end

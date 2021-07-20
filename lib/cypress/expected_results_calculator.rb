@@ -123,9 +123,11 @@ module Cypress
       unless single_measure_result_hash['supplemental_data'][pop]
         single_measure_result_hash['supplemental_data'][pop] = { 'RACE' => {}, 'ETHNICITY' => {}, 'SEX' => {}, 'PAYER' => {} }
       end
-      patient_sup.keys.each do |sup_type|
-        # For each type of supplemental data (e.g., RACE, SEX), increment code values
-        add_or_increment_code(pop, sup_type, patient_sup[sup_type], single_measure_result_hash)
+       if (patient_sup.keys != nil)
+        patient_sup.keys.each do |sup_type|
+          # For each type of supplemental data (e.g., RACE, SEX), increment code values
+          add_or_increment_code(pop, sup_type, patient_sup[sup_type], single_measure_result_hash)
+        end
       end
     end
 

@@ -64,9 +64,15 @@ module Cypress
     def self.patient_missing_problems(patient, problem)
       # TODO: first... different versions of value set... which version do we want?
       # 2.16.840.1.113883.3.666.5.748
+      begin
       value_set = ValueSet.where(oid: problem[:oid].first).first
       !Cypress::CriteriaPicker.find_problem_in_records([patient], value_set)
+      rescue Exception => e
+            Delayed::Worker.logger.info(e.message)
+            Delayed::Worker.logger.info(e.backtrace.inspect)
+      end
     end
+    
     def self.get_provider_info(id, patient)
       provider_performances = patient.qdmPatient.extendedData['provider_performances']
       if provider_performances.length > 0
