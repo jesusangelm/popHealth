@@ -72,6 +72,9 @@ gem 'non-stupid-digest-assets' # support vendored non-digest assets
 gem 'jquery-datatables-rails', '3.4.0'
 gem 'select2-rails'
 
+gem 'puma', '~> 5.4'
+gem 'dalli'
+
 group :test, :develop, :ci do
   gem 'pry'
   gem 'pry-rails'

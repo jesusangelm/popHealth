@@ -32,7 +32,10 @@ PopHealth::Application.configure do
   # Add spec/javascripts to asset paths so that jasmine tests work
   config.assets.paths << Rails.root.join('spec/javascripts')
   
+  config.session_store = :dalli_store
   
+  config.log_level = :info
+
   #add support for Pry debugging
 =begin  silence_warnings do
     begin
