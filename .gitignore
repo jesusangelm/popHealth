@@ -26,3 +26,4 @@ public/assets
 vendor/assets/components/*
 results/
 cypress-lib-dead
+cqm-execution-service
